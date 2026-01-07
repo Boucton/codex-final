@@ -1,329 +1,273 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CODEX ULTIMA v11 - Simulation Engine</title>
-    
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <title>CODEX ULTIMA — Interface de Pensée</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <style>
-        :root { --bg-deep: #020617; --glass-panel: rgba(15, 23, 42, 0.95); --glass-border: rgba(255, 255, 255, 0.08); }
-        body { background-color: var(--bg-deep); color: #e2e8f0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        
-        /* Grid Background & Animations */
-        .grid-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; mask-image: radial-gradient(circle at 50% 30%, black 30%, transparent 100%); }
-        .glass { background: var(--glass-panel); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4); }
-        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .font-mystic { font-family: 'Cinzel', serif; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        
-        /* Hourglass Animation */
-        .rotate-cw { transform: rotate(180deg); transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        .rotate-ccw { transform: rotate(0deg); transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        .golden-glow { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
-    </style>
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- React CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #0b0f1a;
+      --panel: #12172a;
+      --accent: #4da6ff;
+      --text: #e6ebff;
+      --muted: #9aa4c7;
+      --danger: #ff6b6b;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top, #101633, var(--bg));
+      color: var(--text);
+    }
+
+    header {
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2.6rem;
+      margin-bottom: .5rem;
+      letter-spacing: .05em;
+    }
+
+    header p {
+      color: var(--muted);
+      max-width: 680px;
+      margin: auto;
+      line-height: 1.6;
+    }
+
+    .sablier {
+      margin-top: 1.2rem;
+      font-size: 1.6rem;
+      opacity: .7;
+      cursor: pointer;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 1.5rem;
+    }
+
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      font-size: 1.5rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.4rem;
+    }
+
+    .card {
+      background: linear-gradient(160deg, #151b36, #0e1328);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      transition: transform .25s ease, box-shadow .25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 40px rgba(0,0,0,.45);
+    }
+
+    .card i.icon {
+      font-size: 1.8rem;
+      color: var(--accent);
+      margin-bottom: .6rem;
+    }
+
+    .card h3 {
+      margin: .2rem 0 .5rem 0;
+      font-size: 1.15rem;
+    }
+
+    .card p {
+      font-size: .9rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .workflow {
+      margin-top: .8rem;
+      font-size: .85rem;
+      color: #c9d3ff;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: .25rem .55rem;
+      font-size: .7rem;
+      border-radius: 6px;
+      background: rgba(255,255,255,.08);
+      margin-right: .3rem;
+    }
+
+    .danger {
+      color: var(--danger);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      font-size: .8rem;
+      color: var(--muted);
+    }
+
+    /* Secret */
+    .secret {
+      opacity: .04;
+      user-select: none;
+    }
+  </style>
 </head>
 <body>
-    <div class="grid-bg"></div>
-    <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
+<header>
+  <h1>CODEX ULTIMA</h1>
+  <p>
+    Interface de pensée augmentée.<br />
+    Simulation, décision, cognition — sous contrainte de temps.
+  </p>
+  <div class="sablier" title="Le temps n'est jamais neutre.">⏳</div>
+</header>
 
-        /* --- 1. CONFIGURATION ROBUSTE (Anti-Crash) --- */
-        const DEFAULT_THEME = { accent: "text-slate-400", bgAccent: "bg-slate-500", borderAccent: "border-slate-500", badge: "bg-slate-800", button: "bg-slate-800", gradientIcon: "from-slate-800 to-slate-900" };
+<main id="root"></main>
 
-        const THEME_CONFIG = {
-            medecine: { accent: "text-sky-400", bgAccent: "bg-sky-500", borderAccent: "border-sky-500", badge: "bg-sky-950 text-sky-300 border-sky-800", button: "bg-slate-800 hover:bg-sky-600 text-white border-white/10", gradientIcon: "from-sky-900 to-blue-900 text-sky-300" },
-            gourmand: { accent: "text-rose-400", bgAccent: "bg-rose-500", borderAccent: "border-rose-500", badge: "bg-rose-950 text-rose-300 border-rose-800", button: "bg-slate-800 hover:bg-rose-600 text-white border-white/10", gradientIcon: "from-rose-900 to-red-900 text-rose-300" },
-            cosmos: { accent: "text-indigo-400", bgAccent: "bg-indigo-500", borderAccent: "border-indigo-500", badge: "bg-indigo-950 text-indigo-300 border-indigo-800", button: "bg-slate-800 hover:bg-indigo-600 text-white border-white/10", gradientIcon: "from-indigo-900 to-violet-900 text-indigo-300" },
-            humanities: { accent: "text-fuchsia-400", bgAccent: "bg-fuchsia-500", borderAccent: "border-fuchsia-500", badge: "bg-fuchsia-950 text-fuchsia-300 border-fuchsia-800", button: "bg-slate-800 hover:bg-fuchsia-600 text-white border-white/10", gradientIcon: "from-fuchsia-900 to-pink-900 text-fuchsia-300" },
-            strategy: { accent: "text-emerald-400", bgAccent: "bg-emerald-500", borderAccent: "border-emerald-500", badge: "bg-emerald-950 text-emerald-300 border-emerald-800", button: "bg-slate-800 hover:bg-emerald-600 text-white border-white/10", gradientIcon: "from-emerald-900 to-teal-900 text-emerald-300" },
-            time: { accent: "text-amber-400", bgAccent: "bg-amber-500", borderAccent: "border-amber-500", badge: "bg-amber-950 text-amber-300 border-amber-800", button: "bg-slate-900 hover:bg-amber-600 text-amber-100 border-amber-500/30", gradientIcon: "from-amber-900 to-yellow-900 text-amber-300" }
-        };
+<footer>
+  CODEX ULTIMA — Certaines décisions ne se répètent pas.
+</footer>
 
-        const AI_TOOLS = {
-            gemini: { label: "Gemini Pro", icon: "fa-gem", color: "text-blue-300" },
-            notebook: { label: "NotebookLM", icon: "fa-book-journal-whills", color: "text-emerald-300" },
-            mistral: { label: "Mistral", icon: "fa-wind", color: "text-indigo-300" },
-            python: { label: "Python", icon: "fa-python", color: "text-yellow-300" },
-            img: { label: "Imagen", icon: "fa-image", color: "text-pink-300" },
-            audio: { label: "Audio", icon: "fa-headphones", color: "text-orange-300" } 
-        };
+<script type="text/babel">
 
-        /* --- 2. ENGINE UTILS --- */
-        // Générateur de hasard pour la variabilité
-        const randomPick = (options) => options[Math.floor(Math.random() * options.length)];
-        
-        // Injecteur intelligent
-        const val = (inputs, key, fallbackArr) => {
-            const value = inputs[key];
-            if (value && value.trim() !== "") return value;
-            // Si pas d'input, on pioche une valeur aléatoire si fallbackArr est un tableau
-            if (Array.isArray(fallbackArr)) return `[ALÉATOIRE: ${randomPick(fallbackArr)}]`;
-            return `[${fallbackArr}]`;
-        };
+const SECTIONS = [
+  {
+    title: 'Simulation & Décision',
+    icon: 'fa-dice-d20',
+    items: [
+      {
+        icon: 'fa-user-doctor',
+        title: 'Dr GOURMAND — Le Jeu',
+        desc: 'Simulation clinique narrative. Chaque décision modifie l’état du patient, du temps et de vous-même.',
+        workflow: [
+          'Présentation du cas',
+          'Contrainte cachée',
+          'Décision sous pression',
+          'Feedback cognitif'
+        ],
+        tags: ['jeu', 'médecine', 'raisonnement']
+      }
+    ]
+  },
+  {
+    title: 'Médecine & Clinique',
+    icon: 'fa-stethoscope',
+    items: [
+      {
+        icon: 'fa-brain',
+        title: 'Red Team Diagnostique',
+        desc: 'Attaque systématique de ton raisonnement clinique pour réduire les biais cognitifs.',
+        workflow: ['Formulation du cas', 'Injection de biais', 'Contre-argumentation', 'Synthèse sécurisée'],
+        tags: ['diagnostic', 'biais', 'sécurité']
+      }
+    ]
+  },
+  {
+    title: 'Raisonnement & Cognition',
+    icon: 'fa-lightbulb',
+    items: [
+      {
+        icon: 'fa-chess',
+        title: 'Pensée sous contrainte',
+        desc: 'Forcer une décision optimale malgré des ressources cognitives limitées.',
+        workflow: ['Objectif imposé', 'Contrainte aléatoire', 'Décision', 'Analyse'],
+        tags: ['cognition', 'stratégie']
+      }
+    ]
+  },
+  {
+    title: 'Exploration',
+    icon: 'fa-meteor',
+    items: [
+      {
+        icon: 'fa-clock',
+        title: 'Le Temps',
+        desc: 'Certains savoirs n’apparaissent qu’à ceux qui osent ralentir.',
+        workflow: ['Observation', 'Attente', 'Révélation'],
+        tags: ['secret'],
+        secret: true
+      }
+    ]
+  }
+];
 
-        /* --- 3. DATA LAYER (SCÉNARIOS COMPLETS) --- */
-        const DATA = {
-            medecine: {
-                title: "Médecine Interne",
-                icon: "fa-user-doctor",
-                img: "https://images.unsplash.com/photo-1579684385136-137af18db23c?auto=format&fit=crop&w=2000&q=80",
-                prompts: [
-                    {
-                        id: "m1", title: "Synthèse EBM", itemIcon: "fa-scale-balanced",
-                        desc: "Transformez une pile de PDF en état de l'art clinique structuré.",
-                        type: "notebook", aiTags: ["notebook"],
-                        workflow: {
-                            goal: "Créer un document de référence inattaquable.",
-                            steps: ["Zotero : Export PDF", "NotebookLM : Upload", "Prompt", "Vérification des citations"],
-                            result: "Tableau comparatif + Zones d'ombre."
-                        },
-                        inputs: [{key: "sujet", label: "Pathologie", placeholder: "Vascularites"}],
-                        templates: { standard: (v) => `RÔLE: Expert Méthodologiste.\nSOURCE: Documents chargés.\nTÂCHE: Synthèse EBM sur ${val(v,'sujet','SUJET')}.\n\nSTRUCTURE:\n1. Tableau comparatif (n=, design, résultats).\n2. Consensus vs Controverses (Crucial).\n3. Implications cliniques.\n4. Citer les sources [x].` }
-                    },
-                    {
-                        id: "m2", title: "Red Team Diagnostic", itemIcon: "fa-chess",
-                        desc: "Luttez contre votre biais de confirmation.",
-                        aiTags: ["gemini"],
-                        workflow: { goal: "Sécuriser un diagnostic incertain.", steps: ["Poser le diagnostic", "Laisser l'IA attaquer", "Chercher le 'Killer Test'"], result: "Liste de diagnostics différentiels critiques." },
-                        inputs: [{key: "hyp", label: "Hypothèse", placeholder: "Horton"}, {key: "sig", label: "Signes", placeholder: "Céphalées..."}],
-                        templates: { standard: (v) => `RÔLE: Red Team (Avocat du Diable).\nMON HYPOTHÈSE: ${val(v,'hyp','DIAG')}.\nCLINIQUE: ${val(v,'sig',['Céphalées atypiques', 'Fièvre nue', 'AEG isolé', 'Douleur thoracique'])}.\n\nMISSION:\n1. Trouve 3 arguments CONTRE ce diagnostic.\n2. Liste 3 'Mimics' graves.\n3. Quel est le 'Killer Test' ?` }
-                    }
-                ]
-            },
-            gourmand: {
-                title: "Dr GOURMAND",
-                icon: "fa-utensils",
-                img: "./dr-gourmand.png", // Image locale
-                prompts: [
-                    {
-                        id: "g1", title: "Moteur de Simulation v2", itemIcon: "fa-heart-pulse",
-                        desc: "Simulation clinique interactive avec gestion du temps.",
-                        aiTags: ["gemini"],
-                        workflow: { goal: "Entraînement à la décision sous pression.", steps: ["Copier le System Prompt", "Ne rien dire d'autre", "Jouer le tour par tour"], result: "Score de survie patient." },
-                        inputs: [{key: "spe", label: "Spécialité", placeholder: "Infectio"}, {key: "lvl", label: "Niveau (1-10)", placeholder: "9"}],
-                        templates: { standard: (v) => `SYSTEM PROMPT:\nTu es 'Dr GOURMAND', moteur de simulation.\nPARAM: ${val(v,'spe',['Infectiologie', 'Médecine Interne', 'Réanimation', 'Cardiologie'])}, Niv ${val(v,'lvl','9')}.\n\nRÈGLES:\n1. Choisis SECRÈTEMENT un cas complexe (Hidden State).\n2. Tour par tour. Tu donnes les résultats bruts.\n3. Gère le TEMPS (Avance l'horloge à chaque examen).\n4. Si je traîne -> Décès.\n\nINITIALISATION: Affiche l'arrivée du patient (Visuel, Constantes).` }
-                    }
-                ]
-            },
-            cosmos: {
-                title: "Cosmos & Quantique",
-                icon: "fa-atom",
-                img: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=2000&q=80",
-                prompts: [
-                    {
-                        id: "cos1", title: "Le Debunker Quantique", itemIcon: "fa-radiation",
-                        desc: "Distinguer la physique du mysticisme.",
-                        aiTags: ["gemini"],
-                        workflow: { goal: "Clarifier un concept mal compris.", steps: ["Identifier l'affirmation", "Déconstruire mathématiquement", "Reconstruire l'intuition"], result: "Explication claire." },
-                        inputs: [{key: "concept", label: "Affirmation", placeholder: "Conscience quantique"}],
-                        templates: { standard: (v) => `Agis comme un Physicien Théoricien.\nAnalyse : "${val(v,'concept',['Loi de l\'attraction', 'Mémoire de l\'eau', 'Biocentrisme'])}".\n\nTÂCHE :\n1. Déconstruis l'erreur d'interprétation.\n2. Explique le vrai phénomène physique.\n3. Analogie macroscopique brutale.` }
-                    }
-                ]
-            },
-            strategy: {
-                title: "Stratégie & Maîtrise",
-                icon: "fa-chess-knight",
-                img: "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=2000&q=80",
-                prompts: [
-                    {
-                        id: "strat1", title: "Ouverture Sensei", itemIcon: "fa-chess-board",
-                        desc: "Apprendre les concepts d'échecs, pas le par cœur.",
-                        aiTags: ["gemini"],
-                        workflow: { goal: "Maîtriser une ouverture.", steps: ["Choisir l'ouverture", "Comprendre les plans", "Voir les pièges"], result: "Compréhension stratégique." },
-                        inputs: [{key: "open", label: "Ouverture", placeholder: "Sicilienne"}],
-                        templates: { standard: (v) => `Enseigne-moi l'ouverture ${val(v,'open',['Défense Sicilienne', 'Gambit Dame', 'Est-Indienne'])}.\nFocus sur les IDÉES stratégiques :\n1. Pièce clé ?\n2. Plan long terme ?\n3. Piège classique ?` }
-                    }
-                ]
-            },
-            humanities: {
-                title: "Humanités & Arts",
-                icon: "fa-masks-theater",
-                img: "https://images.unsplash.com/photo-1551043047-1d2adf00f3e1?auto=format&fit=crop&w=2000&q=80",
-                prompts: [
-                    {
-                        id: "hum1", title: "Miroir du Poète", itemIcon: "fa-feather",
-                        desc: "Transfert de style littéraire.",
-                        aiTags: ["mistral"],
-                        workflow: { goal: "Pastiche littéraire.", steps: ["Choisir l'auteur", "Choisir un sujet anachronique", "Générer"], result: "Poème stylisé." },
-                        inputs: [{key: "aut", label: "Auteur", placeholder: "Baudelaire"}, {key: "suj", label: "Sujet", placeholder: "Internet"}],
-                        templates: { standard: (v) => `Style : ${val(v,'aut',['Baudelaire', 'Hugo', 'Rimbaud'])}.\nSujet : ${val(v,'suj',['Le Smartphone', 'L\'IA', 'Le Métro'])}.\n\nÉcris un poème en respectant scrupuleusement le rythme et le lexique.` }
-                    }
-                ]
-            },
-            time: {
-                title: "LE TEMPS",
-                icon: "fa-hourglass-half",
-                img: "https://images.unsplash.com/photo-1501139083538-0139583c61dd?auto=format&fit=crop&w=2000&q=80",
-                isSecret: true,
-                prompts: [
-                    {
-                        id: "time1", title: "Entropie & Flèche", itemIcon: "fa-arrow-trend-up",
-                        desc: "L'irréversibilité thermodynamique.",
-                        aiTags: ["gemini"],
-                        workflow: { goal: "Comprendre la mort thermique.", steps: ["Questionner l'ordre", "Questionner le désordre"], result: "Vertige existentiel." },
-                        inputs: [],
-                        templates: { standard: () => `Explique le lien entre Entropie et Flèche du Temps.\nPourquoi le verre brisé ne remonte-t-il jamais ?` }
-                    }
-                ]
-            }
-        };
+function App() {
+  return (
+    <>
+      {SECTIONS.map((sec, idx) => (
+        <section key={idx} className="section">
+          <div className="section-title">
+            <i className={`fa-solid ${sec.icon}`}></i>
+            <span>{sec.title}</span>
+          </div>
 
-        /* --- 4. COMPOSANTS --- */
-        
-        // Modal Charte Cognitive
-        const CharterModal = ({ onClose }) => (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade" onClick={onClose}>
-                <div className="bg-slate-900 border border-white/10 rounded-2xl p-8 max-w-2xl w-full shadow-2xl relative" onClick={e => e.stopPropagation()}>
-                    <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-white"><i className="fa-solid fa-xmark text-xl"></i></button>
-                    <h2 className="text-2xl font-mystic text-amber-400 mb-6 text-center border-b border-white/5 pb-4">Charte Cognitive</h2>
-                    <div className="space-y-4 text-slate-300 font-light leading-relaxed">
-                        <p><strong className="text-white">1. L'IA est un Miroir.</strong> Ce que vous y mettez (clarté, intention) est ce que vous recevez. Le Codex est un outil pour polir votre propre pensée.</p>
-                        <p><strong className="text-white">2. Simulation > Information.</strong> Ne demandez pas une réponse. Demandez une expérience, un débat, une simulation. C'est dans l'interaction que naît l'apprentissage.</p>
-                        <p><strong className="text-white">3. Le Temps est la Ressource.</strong> Dans Dr GOURMAND comme dans la vie, ne pas décider est une décision. Le temps ne s'arrête pas.</p>
-                    </div>
+          <div className="grid">
+            {sec.items.map((item, i) => (
+              <div key={i} className={`card ${item.secret ? 'secret' : ''}`}>
+                <i className={`fa-solid ${item.icon} icon`}></i>
+                <h3>{item.title}</h3>
+                <p>{item.desc}</p>
+                <div className="workflow">
+                  {item.workflow.map((w, j) => (
+                    <div key={j}>▸ {w}</div>
+                  ))}
                 </div>
-            </div>
-        );
-
-        const Sidebar = ({ active, setActive, mysteryState, triggerMystery, setCharter }) => (
-            <div className="w-full md:w-20 lg:w-72 glass flex md:flex-col border-r border-white/10 z-50 md:h-screen fixed md:relative bottom-0">
-                <div className="p-6 hidden md:flex flex-col items-center lg:items-start">
-                    <div className="flex items-center gap-3">
-                        <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-100 to-slate-400 tracking-tight">CODEX</h1>
-                        <button onClick={triggerMystery} className={`text-slate-600 hover:text-amber-400 transition-all duration-700 ${mysteryState === 1 ? 'rotate-cw text-amber-500' : ''} ${mysteryState === 2 ? 'rotate-ccw text-amber-400 golden-glow' : ''}`}>
-                            <i className="fa-solid fa-hourglass-start text-lg"></i>
-                        </button>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1"><span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-white/5 font-mono">v11.0</span></div>
+                <div style={{marginTop: '.6rem'}}>
+                  {item.tags.map((t, k) => (
+                    <span key={k} className="badge">{t}</span>
+                  ))}
                 </div>
-                <nav className="flex-1 flex md:flex-col gap-1 p-2 overflow-x-auto md:overflow-visible no-scrollbar">
-                    {Object.entries(DATA).map(([key, cat]) => {
-                        if (cat.isSecret && mysteryState < 2) return null;
-                        const styles = THEME_CONFIG[key] || DEFAULT_THEME; // Fallback
-                        return (
-                            <button key={key} onClick={() => setActive(key)} className={`p-3 rounded-xl flex items-center gap-4 transition-all duration-300 group ${active === key ? 'bg-white/5 text-white' : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'}`}>
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br ${styles.gradientIcon} shadow-lg group-hover:scale-110 transition-transform`}><i className={`fa-solid ${cat.icon}`}></i></div>
-                                <span className={`font-medium hidden lg:block text-sm ${key === 'time' ? 'font-mystic text-amber-400' : ''}`}>{cat.title}</span>
-                            </button>
-                        );
-                    })}
-                    <div className="mt-auto hidden md:block px-4 pb-4">
-                        <button onClick={() => setCharter(true)} className="flex items-center gap-3 text-xs text-slate-500 hover:text-amber-400 transition-colors"><i className="fa-solid fa-scroll"></i> Charte Cognitive</button>
-                    </div>
-                </nav>
-            </div>
-        );
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
+    </>
+  );
+}
 
-        const PromptCard = ({ item, themeKey }) => {
-            const [inputs, setInputs] = useState({});
-            const [copied, setCopied] = useState(false);
-            const [tab, setTab] = useState('prompt'); // 'prompt' | 'workflow'
-            const styles = THEME_CONFIG[themeKey] || DEFAULT_THEME;
-            const finalPrompt = useMemo(() => item.templates.standard(inputs), [inputs, item]);
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
 
-            const copy = () => { navigator.clipboard.writeText(finalPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+</script>
 
-            return (
-                <div className="glass rounded-2xl border border-white/5 hover:border-white/20 transition-all duration-300 flex flex-col h-full overflow-hidden animate-fade">
-                    <div className="p-5 border-b border-white/5 bg-white/[0.02]">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-slate-900 border border-white/5 text-lg ${styles.accent}`}><i className={`fa-solid ${item.itemIcon}`}></i></div>
-                            <div><h3 className="text-lg font-bold text-slate-100">{item.title}</h3><div className="flex gap-2 text-[10px] text-slate-500">{item.aiTags.map(t => <span key={t}><i className={`fa-solid ${AI_TOOLS[t].icon} mr-1`}></i>{AI_TOOLS[t].label}</span>)}</div></div>
-                        </div>
-                        <p className="text-xs text-slate-400 line-clamp-2">{item.desc}</p>
-                    </div>
-
-                    <div className="flex border-b border-white/5 text-[10px] font-bold uppercase tracking-wider">
-                        <button onClick={() => setTab('prompt')} className={`flex-1 py-3 transition-colors ${tab === 'prompt' ? 'text-white bg-white/5 border-b-2 '+styles.borderAccent : 'text-slate-500 hover:text-slate-300'}`}>Prompt</button>
-                        <button onClick={() => setTab('workflow')} className={`flex-1 py-3 transition-colors ${tab === 'workflow' ? 'text-white bg-white/5 border-b-2 '+styles.borderAccent : 'text-slate-500 hover:text-slate-300'}`}>Workflow</button>
-                    </div>
-
-                    <div className="flex-1 bg-slate-950/30 p-5">
-                        {tab === 'prompt' ? (
-                            <>
-                                {item.inputs && <div className="space-y-3 mb-4">{item.inputs.map(inp => (
-                                    <div key={inp.key}><label className="text-[10px] uppercase text-slate-500 font-bold ml-1">{inp.label}</label><input type="text" placeholder={inp.placeholder} onChange={(e) => setInputs({...inputs, [inp.key]: e.target.value})} className="w-full mt-1 bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-slate-500 font-mono transition-colors"/></div>
-                                ))}</div>}
-                                <div className="relative h-full min-h-[150px]">
-                                    <pre className="bg-slate-950 rounded-xl p-4 text-xs text-slate-400 font-mono whitespace-pre-wrap border border-white/5 h-full overflow-y-auto custom-scrollbar">{finalPrompt}</pre>
-                                    <button onClick={copy} className={`absolute bottom-3 right-3 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all shadow-lg flex items-center gap-2 ${copied ? 'bg-emerald-600 text-white' : styles.button}`}><i className={`fa-solid ${copied ? 'fa-check' : 'fa-copy'}`}></i>{copied ? 'Copié' : 'Copier'}</button>
-                                </div>
-                            </>
-                        ) : (
-                            <div className="space-y-4 text-xs animate-fade">
-                                <div className="p-3 bg-slate-900/50 rounded-lg border border-white/5"><div className="font-bold text-slate-400 uppercase mb-1">Objectif</div><div className="text-white">{item.workflow.goal}</div></div>
-                                <div className="p-3 bg-slate-900/50 rounded-lg border border-white/5"><div className="font-bold text-slate-400 uppercase mb-1">Étapes</div><ol className="list-decimal list-inside space-y-1 text-slate-300">{item.workflow.steps.map((s,i)=><li key={i}>{s}</li>)}</ol></div>
-                                <div className="p-3 bg-slate-900/50 rounded-lg border border-white/5"><div className="font-bold text-slate-400 uppercase mb-1">Résultat</div><div className="text-emerald-400">{item.workflow.result}</div></div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            );
-        };
-
-        const MainContent = ({ active }) => {
-            const data = DATA[active];
-            const styles = THEME_CONFIG[active] || DEFAULT_THEME;
-            
-            // Fallback Image Handler
-            const handleImgError = (e) => {
-                e.target.style.display = 'none'; // Cache l'image cassée
-                e.target.parentElement.classList.add(styles.bgAccent); // Met un fond de couleur à la place
-                e.target.parentElement.classList.add('opacity-20');
-            };
-
-            return (
-                <div className="flex-1 h-screen overflow-y-auto relative custom-scrollbar bg-slate-950/30">
-                    <div className="p-4 md:p-10 max-w-[1600px] mx-auto">
-                        <div className="relative h-48 md:h-64 rounded-[2rem] overflow-hidden mb-8 border border-white/5 shadow-2xl group animate-fade bg-slate-900">
-                            <img src={data.img} onError={handleImgError} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-[3s]" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent"></div>
-                            <div className="absolute bottom-0 left-0 p-8 w-full">
-                                <h2 className={`text-4xl md:text-5xl font-black text-white mb-2 tracking-tighter drop-shadow-xl ${active === 'time' ? 'font-mystic text-amber-100' : ''}`}>{data.title}</h2>
-                                <div className="flex items-center gap-3"><span className={`h-1.5 w-12 rounded-full ${styles.bgAccent}`}></span><p className={`text-sm font-medium ${styles.accent} uppercase tracking-widest`}>Simulateur Cognitif</p></div>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-20">
-                            {data.prompts.map(p => <PromptCard key={p.id} item={p} themeKey={active} />)}
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        const App = () => {
-            const [active, setActive] = useState('medecine');
-            const [mystery, setMystery] = useState(0); 
-            const [charter, setCharter] = useState(false);
-
-            const triggerMystery = () => {
-                if (mystery === 0) setMystery(1);
-                else if (mystery === 1) { setMystery(2); setTimeout(() => setActive('time'), 600); }
-            };
-
-            return (
-                <div className="flex flex-col md:flex-row h-screen overflow-hidden text-slate-200">
-                    <Sidebar active={active} setActive={setActive} mysteryState={mystery} triggerMystery={triggerMystery} setCharter={setCharter} />
-                    <MainContent active={active} />
-                    {charter && <CharterModal onClose={() => setCharter(false)} />}
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
 </body>
 </html>
