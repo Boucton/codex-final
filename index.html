@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codex Gemini v5.0 - Visual Hub</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --glass-bg: rgba(15, 23, 42, 0.85); --glass-border: rgba(255, 255, 255, 0.1); }
+        body { font-family: 'Outfit', sans-serif; background-color: #000000; color: #f1f5f9; min-height: 100vh; overflow-x: hidden; }
+        .bg-animate { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background: radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.15), transparent 25%), radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.15), transparent 25%); animation: pulse 10s ease-in-out infinite alternate; }
+        @keyframes pulse { 0% { opacity: 0.5; transform: scale(1); } 100% { opacity: 1; transform: scale(1.1); } }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .glass-card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .glass-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.3); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); }
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #0f172a; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="bg-animate"></div>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+        const categories = [
+            { id: 'immuno', icon: 'fa-dna', name: 'Interne & Immuno', desc: 'Expertise Clinique & Bio', color: 'from-blue-500 to-cyan-400', img: 'microscope,dna' },
+            { id: 'gourmand', icon: 'fa-user-md', name: 'Dr GOURMAND', desc: 'Simulation Hardcore', color: 'from-rose-500 to-red-400', img: 'hospital,emergency' },
+            { id: 'culture', icon: 'fa-landmark', name: 'Savoir Absolu', desc: 'Arts, Lettres, Philo', color: 'from-purple-500 to-indigo-400', img: 'library,statue' },
+            { id: 'science', icon: 'fa-atom', name: 'Cosmos & Quantum', desc: 'Physique, Maths, Chimie', color: 'from-emerald-500 to-teal-400', img: 'galaxy,quantum' },
+            { id: 'code', icon: 'fa-code', name: 'Code & Création', desc: 'Dev, Échecs, Cuisine', color: 'from-orange-500 to-amber-400', img: 'coding,chess' },
+            { id: 'engineer', icon: 'fa-microchip', name: 'Ingénierie IA', desc: 'Moteur & Paramètres', color: 'from-slate-500 to-gray-400', img: 'robot,network' }
+        ];
+        const library = {
+            immuno: [
+                { title: "Le Physiopathologiste", tags: ["Deep Dive"], img: "cell", prompt: "Explique la physiopathologie détaillée de [Maladie] au niveau moléculaire. Inclus les cytokines impliquées, les interactions récepteur-ligand et les voies de signalisation intracellulaire (JAK-STAT, NF-kB...). Fais des liens avec les cibles thérapeutiques actuelles." },
+                { title: "Veille Biblio (NotebookLM)", tags: ["Zotero"], img: "research", prompt: "(Dans NotebookLM) : Synthétise les nouvelles pistes thérapeutiques pour [Pathologie] basées sur ces 5 articles. Crée un tableau comparatif : 'Molécule', 'Mécanisme', 'Résultats Essais Phase III', 'Effets Indésirables Majeurs'." },
+                { title: "Avocat du Diable", tags: ["Diagnostic"], img: "debate", prompt: "Je pense que ce patient a [Diagnostic X]. Voici le dossier : [Données]. Ton rôle est de prouver que j'ai tort. Trouve toutes les incohérences, les atypies, et propose 3 diagnostics alternatifs plus probables ou plus graves que je pourrais avoir manqués." },
+                { title: "Annonce Difficile", tags: ["Éthique"], img: "doctor", prompt: "Incarne un patient de 40 ans, père de famille, à qui je dois annoncer une Sclérose Latérale Amyotrophique. Réagis de façon émotionnelle réaliste. Analyse ensuite ma façon de te l'annoncer et donne-moi un feedback." }
+            ],
+            gourmand: [
+                { title: "MOTEUR DE JEU (Start)", tags: ["Jeu"], img: "ecg", prompt: "Tu es le Moteur 'Dr GOURMAND'.\n1. Choisis SECRÈTEMENT une pathologie (Interne/Infectieux/Rare) et un patient.\n2. Le jeu est au tour par tour. Je demande examen/clinique, tu donnes le résultat.\n3. Gère le TEMPS : chaque examen coûte des heures.\n4. NE DONNE JAMAIS LA RÉPONSE avant que je ne trouve ou que le patient meure.\nCommence par : 'Alarme aux Urgences...'" },
+                { title: "Coup de Poker", tags: ["Action"], img: "pills", prompt: "(En jeu) : Je suspecte une cause infectieuse/inflammatoire mais je n'ai pas la preuve. Je lance un traitement d'épreuve : [Médicament]. Décris l'évolution clinique sur les 12 prochaines heures. Attention aux effets secondaires si je me trompe." },
+                { title: "Le Staff", tags: ["Aide"], img: "meeting", prompt: "(En jeu) : Je convoque un staff. Fais intervenir un Radiologue (cynique), un Infectiologue (méticuleux) et un Chirurgien (impatient). Chacun donne son avis bref sur le dossier actuel." },
+                { title: "Autopsie Cognitive", tags: ["Fin"], img: "brain", prompt: "La partie est finie. Révèle le diagnostic. Maintenant, retrace tout le fil du cas. À quel moment précis aurais-je dû évoquer ce diagnostic ? Quel signe clinique (séméiologie) était la clé ? Note ma performance sur 10." }
+            ],
+            culture: [
+                { title: "Trivial Pursuit Infini", tags: ["Quiz"], img: "history", prompt: "Génère un Quiz de Culture Générale de 10 questions. Thèmes : Histoire, Géo, Philo, Littérature, Cinéma, Sciences. Difficulté : Difficile/Expert. Format : QCM avec explications détaillées APRES la réponse." },
+                { title: "Le Dîner Fantastique", tags: ["Philo"], img: "philosophy", prompt: "Organise un dîner de discussion entre Hermann Hesse, Albert Camus et Nietzsche. Le thème : 'Le sens de la vie face à la mort'. Écris le script de leur conversation, en respectant le style de chacun." },
+                { title: "Analyste Temporel", tags: ["Géo"], img: "map", prompt: "Je veux comprendre la situation actuelle en [Région]. Remonte 100 ans en arrière. Trace une ligne du temps des 5 événements majeurs qui ont mené à la situation d'aujourd'hui." },
+                { title: "Critique d'Art IA", tags: ["Vision"], img: "painting", prompt: "[Uploader Image] Analyse cette œuvre. 1. Mouvement artistique ? 2. Technique utilisée ? 3. Analyse la composition et la lumière. 4. Quelle émotion le peintre a-t-il voulu transmettre ?" }
+            ],
+            science: [
+                { title: "Professeur Feynman", tags: ["Pédagogie"], img: "blackboard", prompt: "Agis comme Richard Feynman. Explique-moi le concept de [Sujet] en utilisant une analogie simple, puis approfondis avec les vraies équations mathématiques (en LaTeX)." },
+                { title: "Labo de Pensée", tags: ["Einstein"], img: "space", prompt: "Guidons une expérience de pensée à la Einstein. Imaginons que je chevauche un photon qui part du soleil. Décris ce que je vois, comment le temps s'écoule pour moi, et comment l'espace se déforme." },
+                { title: "Visu Moléculaire", tags: ["Python"], img: "chemistry", prompt: "Utilise Python et RDKit pour générer la structure 3D de la molécule de [Nom]. Affiche ses propriétés physico-chimiques (Poids, LogP)." },
+                { title: "Défi Mathématique", tags: ["Logique"], img: "math", prompt: "Pose-moi une énigme mathématique de niveau 'Concours Général'. Domaine : Probabilités ou Arithmétique. Laisse-moi chercher. Si je bloque, donne-moi un indice subtil." }
+            ],
+            code: [
+                { title: "Architecte Web", tags: ["HTML/JS"], img: "laptop", prompt: "Je veux créer une page web interactive pour [Projet]. Écris le code HTML, CSS (Tailwind) et JS complet dans un seul fichier. Le design doit être sombre et minimaliste." },
+                { title: "Mentor Échecs", tags: ["Vision"], img: "chess", prompt: "[Uploader capture] Analyse cette position. 1. Qui a l'avantage ? 2. Quel est le meilleur coup pour les Blancs ? 3. Explique le plan stratégique à long terme." },
+                { title: "Data Cleaner", tags: ["Python"], img: "data", prompt: "[Uploader CSV] Ce fichier contient des données patients. Écris un script Python pour : 1. Anonymiser les noms. 2. Remplacer les valeurs manquantes par la moyenne. 3. Détecter les outliers." },
+                { title: "Chef Algorithmique", tags: ["Cuisine"], img: "food", prompt: "J'ai ces ingrédients : [Liste]. Je veux un repas : 1. Hyper-protéiné. 2. Faible index glycémique. 3. Prêt en 20min. Génère la recette avec le calcul des macros." }
+            ],
+            engineer: [
+                { title: "Température Zéro", tags: ["Rigueur"], img: "ice", prompt: "Instruction Système : Adopte une 'Température de 0'. Tes réponses doivent être strictement factuelles. Si tu ne connais pas une information avec certitude, dis 'Je ne sais pas'." },
+                { title: "Chain of Thought", tags: ["Logique"], img: "gears", prompt: "Question : [Problème]. Instruction : Ne réponds pas tout de suite. Décompose ta réflexion étape par étape (Step-by-step thinking). Écris d'abord tes hypothèses, puis donne la réponse." },
+                { title: "Few-Shot Learning", tags: ["Exemple"], img: "target", prompt: "Je veux que tu classifies des symptômes. Voici 3 exemples :\n1. 'Mal au crâne' -> {Neuro}\n2. 'Sang urines' -> {Uro}\nÀ toi. Entrée : [Nouveau Symptôme]" },
+                { title: "Prompt Creator", tags: ["Meta"], img: "pen", prompt: "Agis comme un ingénieur Prompt. Je veux que l'IA fasse [Tâche]. Rédige le meilleur prompt possible pour obtenir ce résultat, en utilisant les techniques de persona et de contexte." }
+            ]
+        };
+
+        function CodexV5() {
+            const [activeTab, setActiveTab] = useState('immuno');
+            const activeData = library[activeTab];
+            const activeCat = categories.find(c => c.id === activeTab);
+            const copyToClipboard = (text, e) => {
+                navigator.clipboard.writeText(text);
+                const btn = e.target;
+                const originalText = btn.innerText;
+                btn.innerText = "COPIÉ !";
+                btn.classList.add('bg-green-500', 'text-white');
+                setTimeout(() => { btn.innerText = originalText; btn.classList.remove('bg-green-500', 'text-white'); }, 2000);
+            };
+            return (
+                <div className="flex flex-col md:flex-row h-screen max-w-[1600px] mx-auto overflow-hidden shadow-2xl rounded-xl border border-white/10 bg-slate-900/50 backdrop-blur-3xl m-0 md:m-4">
+                    <div className="w-full md:w-80 bg-slate-950/80 p-6 flex flex-col border-r border-white/5 overflow-y-auto z-20">
+                        <div className="mb-8 flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/20"><i className="fa-solid fa-gem text-white"></i></div>
+                            <div><h1 className="text-xl font-bold tracking-tight text-white">Codex Gemini</h1><p className="text-xs text-slate-400 font-mono">v5.0 • VISUAL EDITION</p></div>
+                        </div>
+                        <div className="space-y-2">
+                            {categories.map(cat => (
+                                <button key={cat.id} onClick={() => setActiveTab(cat.id)} className={`w-full p-4 rounded-xl flex items-center gap-4 transition-all duration-300 group border ${activeTab === cat.id ? 'bg-slate-800 border-slate-600 shadow-xl' : 'bg-transparent border-transparent hover:bg-slate-900'}`}>
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br ${cat.color} text-white shadow-lg group-hover:scale-110 transition-transform`}><i className={`fa-solid ${cat.icon}`}></i></div>
+                                    <div className="text-left"><div className={`font-semibold ${activeTab === cat.id ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>{cat.name}</div><div className="text-[10px] text-slate-500 uppercase tracking-wider">{cat.desc}</div></div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-4 md:p-8 relative scroll-smooth">
+                        <div className="relative mb-8 rounded-2xl overflow-hidden h-48 flex items-end p-8 border border-white/10 shadow-2xl">
+                             <img src={`https://source.unsplash.com/1200x400/?${activeCat.img},abstract,dark`} alt="Header" className="absolute inset-0 w-full h-full object-cover opacity-60 hover:scale-105 transition-transform duration-700"/>
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
+                            <div className="relative z-10"><h2 className="text-4xl md:text-5xl font-bold text-white mb-2 text-shadow">{activeCat.name}</h2><p className="text-slate-300 text-lg flex items-center gap-2"><span className={`w-2 h-2 rounded-full bg-gradient-to-r ${activeCat.color}`}></span>{activeCat.desc}</p></div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6 pb-20">
+                            {activeData.map((item, idx) => (
+                                <div key={idx} className="glass-card rounded-2xl overflow-hidden flex flex-col group h-full">
+                                    <div className="h-32 overflow-hidden relative">
+                                        <div className="absolute top-2 right-2 z-10 flex gap-1">{item.tags.map(tag => (<span key={tag} className="text-[10px] font-bold uppercase bg-black/60 backdrop-blur text-white px-2 py-1 rounded border border-white/10">{tag}</span>))}</div>
+                                        <img src={`https://source.unsplash.com/600x400/?${item.img},${activeCat.img},technology`} className="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-500"/>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+                                    </div>
+                                    <div className="p-6 flex-1 flex flex-col">
+                                        <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">{item.title}</h3>
+                                        <div className="relative flex-1 bg-slate-950/50 rounded-xl border border-white/5 group-hover:border-blue-500/30 transition-colors">
+                                            <pre className="p-4 font-mono text-xs text-slate-400 whitespace-pre-wrap leading-relaxed h-32 overflow-y-auto custom-scrollbar">{item.prompt}</pre>
+                                            <button onClick={(e) => copyToClipboard(item.prompt, e)} className="absolute bottom-2 right-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold uppercase px-3 py-1.5 rounded-lg border border-white/10 transition-all shadow-lg"><i className="fa-regular fa-copy mr-1"></i> Copier</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<CodexV5 />);
+    </script>
+</body>
+</html>
