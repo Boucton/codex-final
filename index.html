@@ -3,50 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CODEX ULTIMA v8.0 - Cognitive Hub</title>
+    <title>CODEX ULTIMA v9.0 - Cognitive Engine</title>
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Merriweather:ital,wght@0,300;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        :root {
-            --bg-deep: #030712;
-            --glass-panel: rgba(17, 24, 39, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.08);
-        }
-        body {
-            background-color: var(--bg-deep);
-            color: #e2e8f0;
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-        }
-        .grid-bg {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            mask-image: radial-gradient(circle at 50% 30%, black 20%, transparent 100%);
-        }
-        .glass {
-            background: var(--glass-panel);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-        }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+        :root { --bg-deep: #020617; --glass-panel: rgba(15, 23, 42, 0.9); --glass-border: rgba(255, 255, 255, 0.08); }
+        body { background-color: var(--bg-deep); color: #e2e8f0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .grid-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px); background-size: 30px 30px; mask-image: radial-gradient(circle at 50% 30%, black 40%, transparent 100%); }
+        .glass { background: var(--glass-panel); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3); }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
-        
-        /* Animations */
+        .font-serif { font-family: 'Merriweather', serif; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeIn 0.3s ease-out forwards; }
+        .animate-fade { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body>
@@ -56,136 +32,153 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        /* --- CONFIGURATION & THEMES --- */
+        /* --- UTILS: INPUT INJECTION --- */
+        // Cette fonction remplace les entrées vides par un placeholder [MAJUSCULE] propre
+        const val = (inputs, key, placeholder) => {
+            const value = inputs[key];
+            return (value && value.trim() !== "") ? value : `[${placeholder.toUpperCase()}]`;
+        };
+
+        /* --- CONFIGURATION THEMES --- */
         const THEME_CONFIG = {
             medecine: {
                 accent: "text-sky-400",
                 bgAccent: "bg-sky-500",
                 borderAccent: "border-sky-500",
-                badge: "bg-sky-500/10 text-sky-300 border-sky-500/20",
-                button: "bg-slate-800 hover:bg-sky-600 border-white/10 hover:border-sky-400 text-white",
-                activeNav: "bg-sky-500/10 text-sky-300 border-l-2 border-sky-400",
-                gradientIcon: "from-sky-500/20 to-blue-600/20 text-sky-400",
+                badge: "bg-sky-950 text-sky-300 border-sky-800",
+                button: "bg-slate-800 hover:bg-sky-600 text-white border-white/10",
+                gradientIcon: "from-sky-900 to-blue-900 text-sky-300",
             },
             gourmand: {
                 accent: "text-rose-400",
                 bgAccent: "bg-rose-500",
                 borderAccent: "border-rose-500",
-                badge: "bg-rose-500/10 text-rose-300 border-rose-500/20",
-                button: "bg-slate-800 hover:bg-rose-600 border-white/10 hover:border-rose-400 text-white",
-                activeNav: "bg-rose-500/10 text-rose-300 border-l-2 border-rose-400",
-                gradientIcon: "from-rose-500/20 to-red-600/20 text-rose-400",
+                badge: "bg-rose-950 text-rose-300 border-rose-800",
+                button: "bg-slate-800 hover:bg-rose-600 text-white border-white/10",
+                gradientIcon: "from-rose-900 to-red-900 text-rose-300",
             },
             culture: {
                 accent: "text-purple-400",
                 bgAccent: "bg-purple-500",
                 borderAccent: "border-purple-500",
-                badge: "bg-purple-500/10 text-purple-300 border-purple-500/20",
-                button: "bg-slate-800 hover:bg-purple-600 border-white/10 hover:border-purple-400 text-white",
-                activeNav: "bg-purple-500/10 text-purple-300 border-l-2 border-purple-400",
-                gradientIcon: "from-purple-500/20 to-indigo-600/20 text-purple-400",
+                badge: "bg-purple-950 text-purple-300 border-purple-800",
+                button: "bg-slate-800 hover:bg-purple-600 text-white border-white/10",
+                gradientIcon: "from-purple-900 to-indigo-900 text-purple-300",
             },
             code: {
-                accent: "text-orange-400",
-                bgAccent: "bg-orange-500",
-                borderAccent: "border-orange-500",
-                badge: "bg-orange-500/10 text-orange-300 border-orange-500/20",
-                button: "bg-slate-800 hover:bg-orange-600 border-white/10 hover:border-orange-400 text-white",
-                activeNav: "bg-orange-500/10 text-orange-300 border-l-2 border-orange-400",
-                gradientIcon: "from-orange-500/20 to-amber-600/20 text-orange-400",
+                accent: "text-amber-400",
+                bgAccent: "bg-amber-500",
+                borderAccent: "border-amber-500",
+                badge: "bg-amber-950 text-amber-300 border-amber-800",
+                button: "bg-slate-800 hover:bg-amber-600 text-white border-white/10",
+                gradientIcon: "from-amber-900 to-orange-900 text-amber-300",
             }
         };
 
         const AI_TOOLS = {
-            gemini: { label: "Gemini Pro", icon: "fa-gem", color: "text-blue-300" },
+            gemini: { label: "Gemini 1.5 Pro", icon: "fa-gem", color: "text-blue-300" },
             notebook: { label: "NotebookLM", icon: "fa-book-journal-whills", color: "text-emerald-300" },
-            mistral: { label: "Mistral", icon: "fa-wind", color: "text-indigo-300" },
-            python: { label: "Python", icon: "fa-python", color: "text-yellow-300" }
+            mistral: { label: "Mistral Large", icon: "fa-wind", color: "text-indigo-300" },
+            python: { label: "Python Sandbox", icon: "fa-python", color: "text-yellow-300" }
         };
 
-        /* --- DATA LAYER (Avec Variantes & Icônes) --- */
+        /* --- DATA LAYER (MEGA PROMPTS & PEDAGOGIE) --- */
         const DATA = {
             medecine: {
                 title: "Médecine Interne",
                 icon: "fa-user-doctor",
-                img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=2000&q=80",
+                img: "https://images.unsplash.com/photo-1579684385136-137af18db23c?auto=format&fit=crop&w=2000&q=80",
                 prompts: [
                     {
                         id: "m1",
-                        title: "Synthèse Bibliographique",
-                        itemIcon: "fa-book-medical",
-                        desc: "Analyse croisée de littérature pour staff ou recherche.",
-                        aiTags: ["notebook", "gemini"],
-                        workflow: ["Export Zotero (PDF)", "Upload NotebookLM", "Lancer Prompt"],
+                        title: "Synthèse Bibliographique Evidence-Based",
+                        itemIcon: "fa-scale-balanced",
+                        desc: "Transformez une pile de PDF en état de l'art clinique structuré.",
+                        type: "notebook", // Active l'UI NotebookLM
+                        aiTags: ["notebook"],
+                        workflow: [
+                            "Zotero : Exportez 5 à 10 articles majeurs (PDF).",
+                            "NotebookLM : Créez un nouveau carnet et uploadez les sources.",
+                            "Cochez toutes les sources et collez le prompt."
+                        ],
+                        pedagogy: {
+                            mechanism: "In-Context Learning (RAG)",
+                            bias: "Réduit le biais de sélection en forçant l'IA à considérer toutes les sources fournies.",
+                            tip: "NotebookLM n'invente pas. Si l'info n'est pas dans les PDF, il vous le dira. C'est parfait pour la médecine factuelle."
+                        },
                         inputs: [
-                            {key: "sujet", label: "Sujet", placeholder: "ex: Vascularites ANCA"},
-                            {key: "nb", label: "Nb Sources", placeholder: "5"}
+                            {key: "sujet", label: "Sujet Pathologique", placeholder: "ex: Vascularites à ANCA"},
+                            {key: "cible", label: "Public Cible", placeholder: "ex: Staff de Médecine Interne"}
                         ],
                         templates: {
-                            standard: (v) => `Agis comme un Professeur de Médecine Interne. J'ai chargé ${v.nb || 'des'} articles sur ${v.sujet || 'le sujet'} dans NotebookLM.\n\nTACHE : Synthèse structurée focalisée sur :\n1. Nouvelles cibles thérapeutiques.\n2. Controverses actuelles.\n3. Biais méthodologiques.\n\nSORTIE : Tableau comparatif + Conclusion "Take Home Message".`,
-                            short: (v) => `Résume les points clés de ces articles sur ${v.sujet} en 3 bullet points pour un brief rapide.`,
-                            hardcore: (v) => `Analyse critique impitoyable des articles sur ${v.sujet}. Cherche chaque biais statistique, chaque conflit d'intérêt et chaque faiblesse de p-value. Ne laisse rien passer.`
+                            standard: (inputs) => `CONTEXTE :\nTu es un expert méthodologiste et clinicien en médecine interne. Tu as accès à une base de documents scientifiques (les sources chargées).\n\nOBJECTIF :\nRédiger une synthèse de l'état de l'art sur : ${val(inputs, 'sujet', 'SUJET')}, destinée à un ${val(inputs, 'cible', 'PUBLIC')}.\n\nFORMAT DE RÉPONSE ATTENDU :\n1. **Tableau Synoptique des Études** : (Colonnes : Auteurs/Année, Type d'étude, n=, Intervention, Résultats Clés, Limites/Biais).\n2. **Synthèse des Consensus** : Quels sont les points où toutes les sources s'accordent ?\n3. **Zones de Controverse** : Où y a-t-il désaccord ou manque de preuves ? (C'est la partie la plus importante).\n4. **Implications Pratiques** : "Tomorrow's Practice" - Qu'est-ce qui change concrètement pour la prise en charge ?\n\nCONTRAINTES :\n- Cite systématiquement la source (ex: [1]) pour chaque affirmation.\n- Si une donnée est absente des sources, indique "Non renseigné dans les documents fournis". Ne pas halluciner.`
                         }
                     },
                     {
                         id: "m2",
-                        title: "Physiopathologie Moléculaire",
-                        itemIcon: "fa-dna",
-                        desc: "Visualisation des cascades inflammatoires.",
-                        aiTags: ["gemini"],
-                        inputs: [{key: "patho", label: "Pathologie", placeholder: "ex: SAM"}],
-                        templates: {
-                            standard: (v) => `Explique la physiopathologie de ${v.patho} au niveau cellulaire/moléculaire.\n1. Cascade inflammatoire étape par étape.\n2. Analogies visuelles.\n3. Liens cliniques directs.\n4. Cibles des biothérapies.`,
-                            teaching: (v) => `Explique ${v.patho} à un externe en médecine. Utilise des métaphores simples (champ de bataille, usine) pour expliquer les cytokines.`
-                        }
-                    },
-                    {
-                        id: "m3",
-                        title: "Red Team Diagnostic",
-                        itemIcon: "fa-chess-knight",
-                        desc: "Lutte contre le biais de confirmation.",
+                        title: "Le Red Team Diagnostic",
+                        itemIcon: "fa-chess",
+                        desc: "Luttez contre votre propre biais de confirmation par l'adversité.",
+                        type: "chat",
                         aiTags: ["gemini", "mistral"],
+                        pedagogy: {
+                            mechanism: "Adversarial Thinking",
+                            bias: "Biais d'ancrage (rester bloqué sur la première impression).",
+                            tip: "L'IA joue ici le rôle du collègue 'pénible' qui cherche la petite bête. Acceptez la critique pour sécuriser le patient."
+                        },
                         inputs: [
-                            {key: "diag", label: "Mon hypothèse", placeholder: "Horton"},
-                            {key: "signes", label: "Signes", placeholder: "Céphalées..."}
+                            {key: "hypothese", label: "Mon Diagnostic", placeholder: "Maladie de Horton"},
+                            {key: "signes", label: "Tableau Clinique", placeholder: "Céphalées, VS élevée, pas de fièvre"}
                         ],
                         templates: {
-                            standard: (v) => `Je suspecte ${v.diag} devant : ${v.signes}. Prouve que j'ai tort.\n1. Liste 3 diagnostics différentiels (Mimics) plus graves.\n2. Donne le "Key Feature" manquant pour chacun.\n3. Estime la probabilité pré-test.`
+                            standard: (inputs) => `RÔLE :\nTu es un Professeur de Médecine Interne réputé pour ta rigueur diagnostique et ton scepticisme. Tu agis comme une "Red Team" face à mon hypothèse.\n\nDONNÉES :\n- Mon hypothèse : ${val(inputs, 'hypothese', 'DIAGNOSTIC')}\n- Le tableau : ${val(inputs, 'signes', 'SIGNES')}\n\nTÂCHE :\nTon but est de prouver que mon hypothèse est fausse ou incomplète.\n1. **L'Avocat du Diable** : Liste 3 arguments physiopathologiques ou cliniques qui vont CONTRE mon diagnostic.\n2. **Les Mimics (Diagnostics Différentiels)** : Propose 3 pathologies qui miment ce tableau mais qui nécessitent une prise en charge radicalement différente (urgence, traitement opposé).\n3. **Le "Killer Test"** : Quel est l'examen unique ou le signe clinique clé que je dois rechercher maintenant pour trancher définitivement ?`
                         }
                     }
                 ]
             },
             gourmand: {
-                title: "Dr GOURMAND (Jeu)",
-                icon: "fa-skull-crossbones",
-                // Image corrigée (ambiance sombre urgences)
-                img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=2000&q=80",
+                title: "Dr GOURMAND",
+                icon: "fa-utensils",
+                // Image placeholder "Medical Team Dinner" pour remplacer celle qui ne plaisait pas
+                img: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=2000&q=80",
                 prompts: [
                     {
                         id: "g1",
-                        title: "Moteur de Jeu v2",
-                        itemIcon: "fa-gamepad",
-                        desc: "Lancement de la simulation clinique hardcore.",
+                        title: "Moteur de Simulation : Dr GOURMAND",
+                        itemIcon: "fa-heart-pulse",
+                        desc: "Lancez une simulation clinique interactive où chaque erreur se paie.",
+                        type: "chat",
                         aiTags: ["gemini"],
-                        workflow: ["Nouveau Chat", "Copier Prompt", "Aucun indice"],
+                        pedagogy: {
+                            mechanism: "Simulation & Hidden State",
+                            bias: "Gestion de l'incertitude et du stress temporel.",
+                            tip: "Le prompt force l'IA à garder le diagnostic 'caché'. C'est ce qu'on appelle un 'Hidden State' qui empêche le spoil."
+                        },
                         inputs: [
-                            {key: "spe", label: "Spécialité", placeholder: "Infectieux"},
-                            {key: "diff", label: "Niveau (1-10)", placeholder: "9"}
+                            {key: "spe", label: "Spécialité", placeholder: "Infectiologie"},
+                            {key: "lvl", label: "Difficulté (1-10)", placeholder: "9"}
                         ],
                         templates: {
-                            standard: (v) => `Tu es le Moteur "Dr GOURMAND".\nPARAM: Spécialité ${v.spe}, Niveau ${v.diff}.\n\nRÈGLES:\n1. Choisis SECRÈTEMENT patient + diagnostic.\n2. Tour par tour. Tu donnes juste le résultat.\n3. Gère le TEMPS (Heures).\n4. Si je traîne -> le patient meurt.\n\nCommence par l'arrivée aux urgences.`,
-                            hardcore: (v) => `Mode CAUCHEMAR Dr GOURMAND. Spécialité ${v.spe}. Le patient est instable d'emblée. La moindre erreur thérapeutique est fatale. Sois cryptique dans la séméiologie.`
+                            standard: (inputs) => `INSTRUCTION SYSTÈME (Copier-coller intégral) :\n\nTu es le Moteur de Simulation "Dr GOURMAND".\n\nPARAMÈTRES DE LA PARTIE :\n- Spécialité : ${val(inputs, 'spe', 'SPÉCIALITÉ')}\n- Difficulté : ${val(inputs, 'lvl', 'NIVEAU')}/10 (Si >8, le patient est instable).\n\nMÉCANIQUE DE JEU :\n1. **État Caché** : Choisis SECRÈTEMENT un dossier patient complexe. Ne révèle JAMAIS le diagnostic final avant la fin de la partie.\n2. **Tour par Tour** : Je suis le médecin. Je pose des questions, demande des examens, prescris. Toi, tu es la RÉALITÉ. Tu me donnes les résultats bruts (constantes, images, biologies) sans interprétation.\n3. **Gestion du Temps** : Chaque action coûte du temps virtuel. Tiens un compteur. Si je demande un scanner, avance l'horloge de 2h. Si je traîne, l'état du patient se dégrade (choc, défaillance).\n4. **Conditions de Fin** : \n   - VICTOIRE : Je propose le bon diagnostic ET le bon traitement.\n   - DÉFAITE : Le patient décède ou je fais une erreur iatrogène fatale.\n\nINITIALISATION :\nLa partie commence. Décris l'arrivée du patient aux urgences (visuel, constantes vitales, plainte principale). C'est à moi de jouer.`
                         }
                     },
                     {
                         id: "g2",
-                        title: "Coup de Poker",
+                        title: "Action : Traitement d'Épreuve",
                         itemIcon: "fa-syringe",
-                        desc: "Traitement d'épreuve risqué.",
+                        desc: "Tentez un coup de poker thérapeutique en pleine simulation.",
+                        type: "chat",
                         aiTags: ["gemini"],
-                        inputs: [{key: "tt", label: "Traitement", placeholder: "Solumedrol 1g"}],
+                        pedagogy: {
+                            mechanism: "Feedback Loop Simulation",
+                            bias: "Biais d'action (vouloir faire quelque chose à tout prix).",
+                            tip: "Utile quand vous êtes bloqué dans le jeu. Permet de tester une hypothèse par la réponse thérapeutique."
+                        },
+                        inputs: [
+                            {key: "drug", label: "Médicament / Geste", placeholder: "Bolus Solumedrol 1g"}
+                        ],
                         templates: {
-                            standard: (v) => `ACTION JEU: J'administre ${v.tt}. Simule les effets sur 6h. Si diagnostic faux -> complications.`
+                            standard: (inputs) => `[ACTION EN JEU] : Je décide de réaliser un traitement d'épreuve risqué.\n\nACTION : J'administre ${val(inputs, 'drug', 'TRAITEMENT')} immédiatement.\n\nSIMULATION :\nAvance l'horloge de 6 heures et décris l'évolution clinique.\n- Si mon hypothèse diagnostique était bonne : amélioration franche.\n- Si c'était infectieux/septique : flambée ou choc (aggravation).\n- Décris uniquement les constantes et l'état de conscience.`
                         }
                     }
                 ]
@@ -197,134 +190,138 @@
                 prompts: [
                     {
                         id: "c1",
-                        title: "Débat Philosophique",
+                        title: "Le Banquet des Philosophes",
                         itemIcon: "fa-comments",
-                        desc: "Simulation de conversation entre grands esprits.",
-                        aiTags: ["mistral"],
+                        desc: "Faites débattre les plus grands esprits sur vos sujets actuels.",
+                        type: "chat",
+                        aiTags: ["mistral", "gemini"],
+                        pedagogy: {
+                            mechanism: "Persona Adoption",
+                            bias: "Perspective Taking (comprendre un point de vue opposé).",
+                            tip: "L'IA excelle à simuler des styles d'écriture distincts. C'est fascinant pour explorer des arguments contradictoires."
+                        },
                         inputs: [
-                            {key: "guests", label: "Invités", placeholder: "Camus, Nietzsche"},
-                            {key: "topic", label: "Sujet", placeholder: "L'Absurde"}
+                            {key: "hotes", label: "Invités", placeholder: "Nietzsche, Spinoza, Camus"},
+                            {key: "sujet", label: "Sujet du Débat", placeholder: "Faut-il craindre la mort ?"}
                         ],
                         templates: {
-                            standard: (v) => `Script théâtral entre ${v.guests} sur : ${v.topic}.\nRespecte le style, le vocabulaire et les concepts de chacun. Ils doivent être en désaccord.`
-                        }
-                    },
-                    {
-                        id: "c2",
-                        title: "Quiz Adaptatif",
-                        itemIcon: "fa-brain",
-                        desc: "Apprentissage par l'erreur.",
-                        aiTags: ["gemini"],
-                        inputs: [{key: "th", label: "Thème", placeholder: "Histoire"}],
-                        templates: {
-                            standard: (v) => `Quiz 5 questions sur ${v.th}. Niveau Difficile. Une par une. Si juste -> plus dur. Si faux -> explication + anecdote.`
+                            standard: (inputs) => `CONTEXTE :\nOrganise une discussion philosophique (format script théâtral) lors d'un dîner.\n\nPERSONNAGES :\n${val(inputs, 'hotes', 'INVITÉS')}.\n\nSUJET :\n${val(inputs, 'sujet', 'THÈME')}.\n\nCONSIGNES DE STYLE :\n- **Nietzsche** (si présent) : Doit être incisif, parler de volonté, mépriser la faiblesse.\n- **Spinoza** (si présent) : Géométrique, rationnel, parle de Dieu comme Nature.\n- **Camus** (si présent) : Humain, lucide face à l'absurde, chaleureux.\n\nDÉROULEMENT :\nIls doivent être en désaccord respectueux mais ferme. Ils s'interrompent. Utilise des didascalies pour décrire leurs gestes (boire du vin, soupirer).`
                         }
                     }
                 ]
             },
             code: {
                 title: "Code & Tech",
-                icon: "fa-terminal",
+                icon: "fa-code",
                 img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=2000&q=80",
                 prompts: [
                     {
-                        id: "dev1",
-                        title: "Architecte Web",
+                        id: "d1",
+                        title: "L'Architecte Single-File",
                         itemIcon: "fa-laptop-code",
-                        desc: "Génération d'apps one-file.",
+                        desc: "Créez des outils médicaux/pro en un seul fichier HTML.",
+                        type: "chat",
                         aiTags: ["gemini", "python"],
-                        inputs: [{key: "app", label: "Idée", placeholder: "Calculateur"}],
+                        pedagogy: {
+                            mechanism: "Code Generation Constraint",
+                            bias: "Évite la complexité inutile (npm install...).",
+                            tip: "Gemini 1.5 Pro est excellent pour coder en 'One Shot'. Demander un fichier unique permet de tester immédiatement."
+                        },
+                        inputs: [
+                            {key: "app", label: "Idée d'Application", placeholder: "Calculateur Clairance Créatinine"}
+                        ],
                         templates: {
-                            standard: (v) => `Expert React/Tailwind. Crée une Single File App pour : ${v.app}. Design sombre, pro. Code complet sans explication.`
+                            standard: (inputs) => `RÔLE : Développeur Senior Fullstack (React + Tailwind).\n\nTÂCHE : Coder une application web complète contenue dans un SEUL fichier HTML (Single File Component).\n\nPROJET : ${val(inputs, 'app', 'APP')}.\n\nSTACK TECHNIQUE (OBLIGATOIRE) :\n- React 18 & ReactDOM via CDN.\n- Babel standalone via CDN.\n- Tailwind CSS via CDN.\n- FontAwesome via CDN.\n\nDESIGN :\n- Style "Medical Grade" : Sombre, épuré, typographie Inter/JetBrains.\n- Ergonomie parfaite (Mobile responsive).\n\nSORTIE :\nDonne uniquement le code complet, prêt à être copié-collé et exécuté dans un navigateur.`
                         }
                     }
                 ]
             }
         };
 
-        /* --- HOOKS --- */
-        const useLocalStorage = (key, initialValue) => {
-            const [storedValue, setStoredValue] = useState(() => {
-                try {
-                    const item = window.localStorage.getItem(key);
-                    return item ? JSON.parse(item) : initialValue;
-                } catch (error) { return initialValue; }
-            });
-            const setValue = (value) => {
-                try {
-                    const valueToStore = value instanceof Function ? value(storedValue) : value;
-                    setStoredValue(valueToStore);
-                    window.localStorage.setItem(key, JSON.stringify(valueToStore));
-                } catch (error) { console.log(error); }
-            };
-            return [storedValue, setValue];
-        };
+        /* --- COMPOSANTS --- */
 
-        /* --- COMPONENTS --- */
+        /* Modal Charte Cognitive */
+        const CharterModal = ({ onClose }) => (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onClick={onClose}></div>
+                <div className="relative w-full max-w-3xl bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-fade flex flex-col max-h-[90vh]">
+                    <div className="p-8 overflow-y-auto custom-scrollbar">
+                        <h2 className="text-3xl font-serif text-white mb-6 text-center">Charte Cognitive du Codex</h2>
+                        <div className="space-y-6 text-slate-300 leading-relaxed font-light">
+                            <p><strong className="text-white">1. L'IA est un Exosquelette, pas un Substitut.</strong><br/>
+                            Nous n'utilisons pas le Codex pour ne plus réfléchir, mais pour réfléchir *plus loin*. Chaque prompt est conçu pour provoquer un raisonnement, pas pour donner une réponse bête.</p>
 
-        const Sidebar = ({ active, setActive, view, setView }) => {
+                            <p><strong className="text-white">2. La Précision du Langage crée la Réalité.</strong><br/>
+                            Un prompt vague génère une hallucination. Un prompt structuré (Contexte, Rôle, Tâche) génère une expertise. Nous refusons l'ambiguïté.</p>
+
+                            <p><strong className="text-white">3. Pédagogie par l'Adversité.</strong><br/>
+                            (Module Dr GOURMAND). Nous croyons que l'erreur simulée est le meilleur apprentissage. Nous demandons à l'IA de nous contredire, de nous piéger et de jouer l'avocat du diable.</p>
+
+                            <p><strong className="text-white">4. Esthétique de la Clarté.</strong><br/>
+                            La beauté de l'interface n'est pas un luxe, c'est une fonction cognitive. Un environnement propre et sombre réduit la charge mentale et favorise le focus clinique.</p>
+                        </div>
+                    </div>
+                    <div className="p-4 bg-slate-950 border-t border-white/5 text-center">
+                        <button onClick={onClose} className="text-sm text-slate-500 hover:text-white transition-colors uppercase tracking-widest font-bold">Fermer le Manifeste</button>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const Sidebar = ({ active, setActive, setCharterOpen }) => {
             return (
                 <div className="w-full md:w-20 lg:w-72 glass flex md:flex-col border-r border-white/10 z-50 md:h-screen fixed md:relative bottom-0">
-                    <div className="p-6 hidden md:flex flex-col items-center lg:items-start cursor-pointer" onClick={() => setView('home')}>
-                        <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-100 to-slate-400 hidden lg:block tracking-tight">
+                    <div className="p-6 hidden md:flex flex-col items-center lg:items-start">
+                        <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-100 to-slate-400 hidden lg:block tracking-tight cursor-default">
                             CODEX
                         </h1>
                         <div className="flex items-center gap-2 mt-1 hidden lg:flex">
-                            <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-white/5 font-mono">v8.0</span>
-                            <span className="text-[10px] text-emerald-400 font-mono">ON-LINE</span>
+                            <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-white/5 font-mono">v9.0</span>
+                            <span className="text-[10px] text-emerald-500 font-mono tracking-wider">COGNITIVE</span>
                         </div>
-                        <i className="fa-solid fa-cube text-3xl text-slate-500 lg:hidden"></i>
                     </div>
                     
-                    <nav className="flex-1 flex md:flex-col gap-2 p-2 overflow-x-auto md:overflow-visible no-scrollbar">
-                        <button 
-                            onClick={() => setView('favorites')}
-                            className={`p-3 rounded-xl flex items-center gap-4 transition-all duration-300 group
-                            ${view === 'favorites' ? 'bg-yellow-500/10 text-yellow-300 border border-yellow-500/20' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
-                        >
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-yellow-500/20 group-hover:scale-110 transition-transform">
-                                <i className="fa-solid fa-star"></i>
-                            </div>
-                            <span className="font-medium hidden lg:block text-sm">Favoris</span>
-                        </button>
-
-                        <div className="h-px bg-white/5 my-2 hidden md:block"></div>
-
+                    <nav className="flex-1 flex md:flex-col gap-1 p-2 overflow-x-auto md:overflow-visible no-scrollbar">
+                        <div className="text-[10px] uppercase text-slate-600 font-bold px-4 py-2 hidden lg:block tracking-widest mt-2">Modules</div>
                         {Object.entries(DATA).map(([key, cat]) => {
                             const styles = THEME_CONFIG[key];
-                            const isActive = active === key && view === 'home';
+                            const isActive = active === key;
                             return (
                                 <button
                                     key={key}
-                                    onClick={() => { setActive(key); setView('home'); }}
-                                    className={`p-3 rounded-xl flex items-center gap-4 transition-all duration-300 group
-                                    ${isActive ? styles.activeNav : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'}`}
+                                    onClick={() => setActive(key)}
+                                    className={`p-3 rounded-xl flex items-center gap-4 transition-all duration-300 group relative overflow-hidden
+                                    ${isActive ? 'bg-white/5 text-white' : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'}`}
                                 >
-                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br ${styles.gradientIcon} group-hover:scale-110 transition-transform shadow-lg`}>
+                                    {isActive && <div className={`absolute left-0 top-0 bottom-0 w-1 ${styles.bgAccent}`}></div>}
+                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br ${styles.gradientIcon} shadow-lg group-hover:scale-110 transition-transform`}>
                                         <i className={`fa-solid ${cat.icon}`}></i>
                                     </div>
-                                    <span className="font-medium hidden lg:block text-sm">{cat.title.split(' ')[0]}...</span>
+                                    <span className="font-medium hidden lg:block text-sm">{cat.title}</span>
                                 </button>
                             );
                         })}
+
+                        <div className="mt-auto hidden md:block">
+                            <div className="h-px bg-white/5 my-4 mx-4"></div>
+                            <button onClick={() => setCharterOpen(true)} className="w-full p-3 text-left text-slate-500 hover:text-white transition-colors flex items-center gap-4 px-4">
+                                <i className="fa-solid fa-scroll text-slate-600"></i>
+                                <span className="hidden lg:block text-sm font-serif italic">Charte Cognitive</span>
+                            </button>
+                        </div>
                     </nav>
                 </div>
             );
         };
 
-        const PromptCard = ({ item, themeKey, isFav, toggleFav }) => {
+        const PromptCard = ({ item, themeKey }) => {
             const [inputs, setInputs] = useState({});
             const [copied, setCopied] = useState(false);
-            const [variant, setVariant] = useState('standard');
-            
-            const styles = THEME_CONFIG[themeKey] || THEME_CONFIG['medecine']; // Fallback
+            const [activeTab, setActiveTab] = useState('prompt'); // 'prompt' | 'pedagogy'
+            const styles = THEME_CONFIG[themeKey];
 
             const handleInput = (key, value) => setInputs(prev => ({...prev, [key]: value}));
-
-            const finalPrompt = useMemo(() => {
-                const tmpl = item.templates[variant] || item.templates['standard'];
-                return tmpl(inputs);
-            }, [inputs, variant, item]);
+            const finalPrompt = useMemo(() => item.templates.standard(inputs), [inputs, item]);
 
             const copy = () => {
                 navigator.clipboard.writeText(finalPrompt);
@@ -333,196 +330,146 @@
             };
 
             return (
-                <div className="glass rounded-2xl p-6 border-t border-white/5 hover:border-white/20 transition-all duration-300 group animate-fade flex flex-col h-full">
-                    {/* Header */}
-                    <div className="flex justify-between items-start mb-4">
-                        <div className="flex items-start gap-3">
-                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-slate-900 border border-white/5 text-lg ${styles.accent}`}>
-                                <i className={`fa-solid ${item.itemIcon || 'fa-bolt'}`}></i>
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-bold text-slate-100 leading-tight">{item.title}</h3>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {item.aiTags && item.aiTags.map(tag => (
-                                        <span key={tag} className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-950 border border-white/10 text-slate-400">
-                                            <i className={`fa-solid ${AI_TOOLS[tag].icon} ${AI_TOOLS[tag].color}`}></i>
-                                            {AI_TOOLS[tag].label}
-                                        </span>
-                                    ))}
+                <div className="glass rounded-2xl p-0 border border-white/5 hover:border-white/20 transition-all duration-300 group animate-fade flex flex-col h-full overflow-hidden">
+                    {/* Card Header */}
+                    <div className="p-6 pb-4 border-b border-white/5 bg-white/[0.02]">
+                        <div className="flex justify-between items-start mb-3">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-slate-900 border border-white/5 text-lg ${styles.accent}`}>
+                                    <i className={`fa-solid ${item.itemIcon}`}></i>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-slate-100 leading-none mb-1">{item.title}</h3>
+                                    <div className="flex gap-2">
+                                        {item.aiTags && item.aiTags.map(tag => (
+                                            <span key={tag} className="text-[10px] text-slate-500 flex items-center gap-1">
+                                                <i className={`fa-solid ${AI_TOOLS[tag].icon}`}></i> {AI_TOOLS[tag].label}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <button onClick={toggleFav} className={`text-lg transition-transform hover:scale-110 ${isFav ? 'text-yellow-400' : 'text-slate-700 hover:text-slate-400'}`}>
-                            <i className={`fa-${isFav ? 'solid' : 'regular'} fa-star`}></i>
-                        </button>
+                        <p className="text-sm text-slate-400 leading-relaxed">{item.desc}</p>
                     </div>
 
-                    <p className="text-sm text-slate-400 mb-6 leading-relaxed flex-1">{item.desc}</p>
-
-                    {/* Variant Selector */}
-                    {Object.keys(item.templates).length > 1 && (
-                        <div className="flex gap-1 bg-slate-950/50 p-1 rounded-lg mb-4 border border-white/5">
-                            {Object.keys(item.templates).map(v => (
-                                <button
-                                    key={v}
-                                    onClick={() => setVariant(v)}
-                                    className={`flex-1 py-1.5 text-[10px] uppercase font-bold tracking-wide rounded transition-colors
-                                    ${variant === v ? 'bg-slate-800 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}
-                                >
-                                    {v}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Inputs */}
-                    {item.inputs && item.inputs.length > 0 && (
-                        <div className="space-y-3 mb-4">
-                            {item.inputs.map((inp) => (
-                                <div key={inp.key}>
-                                    <input 
-                                        type="text" 
-                                        placeholder={inp.label + "..."}
-                                        onChange={(e) => handleInput(inp.key, e.target.value)}
-                                        className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-slate-500 transition-colors placeholder-slate-600"
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {/* Output Preview */}
-                    <div className="relative group/code mt-auto">
-                        <pre className="bg-slate-950 rounded-xl p-4 text-xs text-slate-400 font-mono whitespace-pre-wrap border border-white/5 max-h-40 overflow-y-auto custom-scrollbar">
-                            {finalPrompt}
-                        </pre>
+                    {/* Tabs */}
+                    <div className="flex border-b border-white/5">
                         <button 
-                            onClick={copy}
-                            className={`absolute bottom-2 right-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-lg flex items-center gap-2 ${copied ? 'bg-emerald-600 text-white' : styles.button}`}
+                            onClick={() => setActiveTab('prompt')}
+                            className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider transition-colors ${activeTab === 'prompt' ? 'text-white bg-white/5 border-b-2 ' + styles.borderAccent : 'text-slate-500 hover:text-slate-300'}`}
                         >
-                            <i className={`fa-solid ${copied ? 'fa-check' : 'fa-copy'}`}></i>
-                            {copied ? 'Copié' : 'Copier'}
+                            Prompt & Variables
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('pedagogy')}
+                            className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider transition-colors ${activeTab === 'pedagogy' ? 'text-white bg-white/5 border-b-2 ' + styles.borderAccent : 'text-slate-500 hover:text-slate-300'}`}
+                        >
+                            Méta-Pédagogie
                         </button>
                     </div>
 
-                    {/* Workflow Mini */}
-                    {item.workflow && (
-                        <div className="mt-4 pt-4 border-t border-white/5">
-                            <div className="flex flex-wrap gap-2 text-[10px] text-slate-500">
-                                {item.workflow.map((step, i) => (
-                                    <span key={i} className="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded">
-                                        <span className="w-4 h-4 rounded-full bg-slate-800 flex items-center justify-center text-[9px]">{i+1}</span>
-                                        {step}
-                                    </span>
-                                ))}
+                    {/* Content */}
+                    <div className="flex-1 bg-slate-950/30 p-6">
+                        
+                        {activeTab === 'prompt' ? (
+                            <>
+                                {/* NotebookLM Special UI */}
+                                {item.type === 'notebook' && (
+                                    <div className="mb-6 bg-emerald-900/10 border border-emerald-500/20 rounded-lg p-4">
+                                        <div className="text-[10px] font-bold text-emerald-400 uppercase mb-2 flex items-center gap-2">
+                                            <i className="fa-solid fa-list-check"></i> Workflow Documentaire
+                                        </div>
+                                        <ol className="space-y-2">
+                                            {item.workflow.map((step, i) => (
+                                                <li key={i} className="text-xs text-slate-300 flex items-start gap-2">
+                                                    <span className="bg-emerald-500/20 text-emerald-400 w-4 h-4 rounded-full flex items-center justify-center text-[9px] flex-shrink-0 mt-0.5">{i+1}</span>
+                                                    {step}
+                                                </li>
+                                            ))}
+                                        </ol>
+                                    </div>
+                                )}
+
+                                {/* Inputs */}
+                                {item.inputs && (
+                                    <div className="space-y-3 mb-4">
+                                        {item.inputs.map((inp) => (
+                                            <div key={inp.key}>
+                                                <label className="text-[10px] uppercase text-slate-500 font-bold ml-1">{inp.label}</label>
+                                                <input 
+                                                    type="text" 
+                                                    placeholder={inp.placeholder}
+                                                    onChange={(e) => handleInput(inp.key, e.target.value)}
+                                                    className="w-full mt-1 bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-slate-500 transition-colors placeholder-slate-700 font-mono"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Output */}
+                                <div className="relative group/code">
+                                    <pre className="bg-slate-950 rounded-xl p-4 text-xs text-slate-400 font-mono whitespace-pre-wrap border border-white/5 max-h-64 overflow-y-auto custom-scrollbar leading-relaxed">
+                                        {finalPrompt}
+                                    </pre>
+                                    <button 
+                                        onClick={copy}
+                                        className={`absolute bottom-3 right-3 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-lg flex items-center gap-2 ${copied ? 'bg-emerald-600 text-white' : styles.button}`}
+                                    >
+                                        <i className={`fa-solid ${copied ? 'fa-check' : 'fa-copy'}`}></i>
+                                        {copied ? 'Copié' : 'Copier'}
+                                    </button>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="space-y-4 animate-fade">
+                                <div className="p-4 rounded-xl bg-slate-900 border border-white/5">
+                                    <div className="text-[10px] text-slate-500 uppercase font-bold mb-1">Mécanisme Cognitif</div>
+                                    <div className="text-sm text-white font-medium">{item.pedagogy.mechanism}</div>
+                                </div>
+                                <div className="p-4 rounded-xl bg-slate-900 border border-white/5">
+                                    <div className="text-[10px] text-slate-500 uppercase font-bold mb-1">Biais Ciblé</div>
+                                    <div className="text-sm text-slate-300">{item.pedagogy.bias}</div>
+                                </div>
+                                <div className={`p-4 rounded-xl border ${styles.badge}`}>
+                                    <div className="text-[10px] uppercase font-bold mb-1 opacity-70"><i className="fa-solid fa-lightbulb mr-1"></i> Conseil Pro</div>
+                                    <div className="text-sm leading-relaxed">{item.pedagogy.tip}</div>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             );
         };
 
-        const MainContent = ({ active, view, favorites, toggleFav }) => {
-            const [search, setSearch] = useState("");
+        const MainContent = ({ active }) => {
+            const data = DATA[active];
+            const styles = THEME_CONFIG[active];
             
-            // Logique de filtrage (Recherche + Vue)
-            const allPrompts = useMemo(() => {
-                let items = [];
-                Object.entries(DATA).forEach(([catKey, cat]) => {
-                    cat.prompts.forEach(p => items.push({...p, catKey, catTitle: cat.title}));
-                });
-                return items;
-            }, []);
-
-            const displayedPrompts = useMemo(() => {
-                let list = view === 'favorites' 
-                    ? allPrompts.filter(p => favorites.includes(p.id))
-                    : DATA[active].prompts.map(p => ({...p, catKey: active}));
-
-                if (search.trim()) {
-                    const q = search.toLowerCase();
-                    // Recherche globale si input
-                    list = allPrompts.filter(p => 
-                        p.title.toLowerCase().includes(q) || 
-                        p.desc.toLowerCase().includes(q) ||
-                        p.catTitle.toLowerCase().includes(q)
-                    );
-                }
-                return list;
-            }, [search, view, active, allPrompts, favorites]);
-
-            const currentData = DATA[active];
-            const currentStyle = THEME_CONFIG[active];
-
             return (
-                <div className="flex-1 h-screen overflow-y-auto relative custom-scrollbar bg-slate-950/50">
-                    
-                    {/* Top Bar (Search) */}
-                    <div className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/5 p-4 flex items-center justify-between gap-4">
-                        <div className="relative flex-1 max-w-xl">
-                            <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
-                            <input 
-                                type="text" 
-                                placeholder="Rechercher un prompt, un tag..." 
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-slate-600 transition-colors placeholder-slate-600"
-                            />
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-slate-500 font-mono hidden sm:flex">
-                            <span><i className="fa-solid fa-database mr-1"></i>LOCAL</span>
-                            <span><i className="fa-solid fa-bolt mr-1"></i>FAST</span>
-                        </div>
-                    </div>
-
-                    <div className="p-4 md:p-8 max-w-7xl mx-auto">
+                <div className="flex-1 h-screen overflow-y-auto relative custom-scrollbar bg-slate-950/30">
+                    <div className="p-4 md:p-10 max-w-[1600px] mx-auto">
                         
-                        {/* Header Section (Uniquement si pas de recherche et vue Home) */}
-                        {!search && view === 'home' && (
-                            <div className="relative h-48 md:h-64 rounded-3xl overflow-hidden mb-10 border border-white/5 shadow-2xl group animate-fade">
-                                <img src={currentData.img} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-[2s]" 
-                                    onError={(e) => {e.target.onerror = null; e.target.style.display='none'; e.target.parentNode.style.background = '#1e293b'}} />
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/50 to-transparent"></div>
-                                <div className="absolute bottom-0 left-0 p-6 md:p-8 w-full">
-                                    <h2 className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tight drop-shadow-xl">{currentData.title}</h2>
-                                    <div className="flex items-center gap-3">
-                                        <span className={`h-1.5 w-12 rounded-full ${currentStyle.bgAccent}`}></span>
-                                        <p className={`text-sm md:text-lg font-medium ${currentStyle.accent}`}>Bibliothèque Cognitive</p>
-                                    </div>
+                        {/* Header Image */}
+                        <div className="relative h-56 md:h-72 rounded-[2rem] overflow-hidden mb-10 border border-white/5 shadow-2xl group animate-fade">
+                            <img src={data.img} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-[3s]" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent"></div>
+                            
+                            <div className="absolute bottom-0 left-0 p-8 md:p-12 w-full">
+                                <h2 className="text-4xl md:text-6xl font-black text-white mb-3 tracking-tighter drop-shadow-xl">{data.title}</h2>
+                                <div className="flex items-center gap-4">
+                                    <span className={`h-2 w-16 rounded-full ${styles.bgAccent}`}></span>
+                                    <p className={`text-sm md:text-lg font-medium ${styles.accent} uppercase tracking-widest`}>Bibliothèque Avancée</p>
                                 </div>
                             </div>
-                        )}
+                        </div>
 
-                        {/* Résultats de Recherche / Vue Favoris */}
-                        {(search || view === 'favorites') && (
-                            <div className="mb-8 flex items-center gap-2">
-                                <span className="text-xl font-bold text-white">
-                                    {search ? `Recherche : "${search}"` : "Vos Favoris"}
-                                </span>
-                                <span className="px-2 py-0.5 rounded-full bg-slate-800 text-xs text-slate-400 border border-white/10">
-                                    {displayedPrompts.length}
-                                </span>
-                            </div>
-                        )}
-
-                        {/* Grille */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6 pb-20">
-                            {displayedPrompts.length > 0 ? (
-                                displayedPrompts.map(p => (
-                                    <PromptCard 
-                                        key={p.id} 
-                                        item={p} 
-                                        themeKey={p.catKey} 
-                                        isFav={favorites.includes(p.id)}
-                                        toggleFav={() => toggleFav(p.id)}
-                                    />
-                                ))
-                            ) : (
-                                <div className="col-span-full py-20 text-center text-slate-600">
-                                    <i className="fa-solid fa-ghost text-4xl mb-4 opacity-50"></i>
-                                    <p>Aucun prompt trouvé.</p>
-                                </div>
-                            )}
+                        {/* Prompts Grid */}
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 pb-32">
+                            {data.prompts.map(p => (
+                                <PromptCard key={p.id} item={p} themeKey={active} />
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -531,21 +478,13 @@
 
         const App = () => {
             const [activeTab, setActiveTab] = useState('medecine');
-            const [view, setView] = useState('home'); // 'home' | 'favorites'
-            const [favorites, setFavorites] = useLocalStorage('codex_favs', []);
-
-            const toggleFav = (id) => {
-                if (favorites.includes(id)) {
-                    setFavorites(favorites.filter(favId => favId !== id));
-                } else {
-                    setFavorites([...favorites, id]);
-                }
-            };
+            const [charterOpen, setCharterOpen] = useState(false);
 
             return (
                 <div className="flex flex-col md:flex-row h-screen overflow-hidden text-slate-200">
-                    <Sidebar active={activeTab} setActive={setActiveTab} view={view} setView={setView} />
-                    <MainContent active={activeTab} view={view} favorites={favorites} toggleFav={toggleFav} />
+                    <Sidebar active={activeTab} setActive={setActiveTab} setCharterOpen={setCharterOpen} />
+                    <MainContent active={activeTab} />
+                    {charterOpen && <CharterModal onClose={() => setCharterOpen(false)} />}
                 </div>
             );
         };
