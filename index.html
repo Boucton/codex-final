@@ -139,8 +139,7 @@
             gourmand: {
                 title: "Dr GOURMAND",
                 icon: "fa-utensils",
-                // Image placeholder "Medical Team Dinner" pour remplacer celle qui ne plaisait pas
-                img: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=2000&q=80",
+                img: "./dr-gourmand.png", 
                 prompts: [
                     {
                         id: "g1",
@@ -159,7 +158,7 @@
                             {key: "lvl", label: "Difficulté (1-10)", placeholder: "9"}
                         ],
                         templates: {
-                            standard: (inputs) => `INSTRUCTION SYSTÈME (Copier-coller intégral) :\n\nTu es le Moteur de Simulation "Dr GOURMAND".\n\nPARAMÈTRES DE LA PARTIE :\n- Spécialité : ${val(inputs, 'spe', 'SPÉCIALITÉ')}\n- Difficulté : ${val(inputs, 'lvl', 'NIVEAU')}/10 (Si >8, le patient est instable).\n\nMÉCANIQUE DE JEU :\n1. **État Caché** : Choisis SECRÈTEMENT un dossier patient complexe. Ne révèle JAMAIS le diagnostic final avant la fin de la partie.\n2. **Tour par Tour** : Je suis le médecin. Je pose des questions, demande des examens, prescris. Toi, tu es la RÉALITÉ. Tu me donnes les résultats bruts (constantes, images, biologies) sans interprétation.\n3. **Gestion du Temps** : Chaque action coûte du temps virtuel. Tiens un compteur. Si je demande un scanner, avance l'horloge de 2h. Si je traîne, l'état du patient se dégrade (choc, défaillance).\n4. **Conditions de Fin** : \n   - VICTOIRE : Je propose le bon diagnostic ET le bon traitement.\n   - DÉFAITE : Le patient décède ou je fais une erreur iatrogène fatale.\n\nINITIALISATION :\nLa partie commence. Décris l'arrivée du patient aux urgences (visuel, constantes vitales, plainte principale). C'est à moi de jouer.`
+                            standard: (inputs) => `INSTRUCTION SYSTÈME :\n\nTu es le Moteur de Simulation "Dr GOURMAND".\n\nPARAMÈTRES DE LA PARTIE :\n- Spécialité : ${val(inputs, 'spe', 'SPÉCIALITÉ')}\n- Difficulté : ${val(inputs, 'lvl', 'NIVEAU')}/10.\n\nMÉCANIQUE DE JEU :\n1. **État Caché** : Choisis SECRÈTEMENT un dossier patient complexe. Ne révèle JAMAIS le diagnostic final avant la fin de la partie.\n2. **Tour par Tour** : Je suis le médecin. Je pose des questions, demande des examens, prescris. Toi, tu es la RÉALITÉ. Tu me donnes les résultats bruts (constantes, images, biologies) sans interprétation.\n3. **Gestion du Temps** : Chaque action coûte du temps virtuel. Tiens un compteur. Si je demande un scanner, avance l'horloge de 2h. Si je traîne, l'état du patient se dégrade.\n4. **Conditions de Fin** : Victoire si diagnostic + traitement trouvés. Défaite si décès.\n\nINITIALISATION :\nLa partie commence. Décris l'arrivée du patient aux urgences (visuel, constantes vitales, plainte principale). C'est à moi de jouer.`
                         }
                     },
                     {
