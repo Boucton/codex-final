@@ -3,25 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CODEX GEMINI v6.0 - ULTIMA</title>
+    <title>CODEX ULTIMA v7.0 - Foundation</title>
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* Configuration Avancée */
+        /* Configuration Base */
         :root {
             --bg-deep: #030712;
-            --glass-panel: rgba(17, 24, 39, 0.7);
+            --glass-panel: rgba(17, 24, 39, 0.75);
             --glass-border: rgba(255, 255, 255, 0.08);
-            --neon-blue: #38bdf8;
-            --neon-rose: #f43f5e;
-            --neon-purple: #c084fc;
         }
         body {
             background-color: var(--bg-deep);
@@ -30,32 +27,32 @@
             overflow-x: hidden;
         }
         
-        /* Background Animé Subtil */
+        /* Background Grid Subtil */
         .grid-bg {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
             background-image: 
                 linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 100%);
         }
 
-        /* Glassmorphism */
+        /* Utilitaires Glassmorphism */
         .glass {
             background: var(--glass-panel);
-            backdrop-filter: blur(16px);
+            backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
         }
 
-        /* Scrollbar Invisible mais fonctionnelle */
+        /* Scrollbar custom */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
         
         /* Animations */
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-slide { animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade { animation: fadeIn 0.3s ease-out forwards; }
         
         .font-mono { font-family: 'JetBrains Mono', monospace; }
     </style>
@@ -67,18 +64,77 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // --- BIBLIOTHÈQUE DE DONNÉES (MEGA PROMPTS) ---
+        /* * ------------------------------------------------------------------
+         * CONFIGURATION DES THÈMES (Phase 1: Static Tailwind)
+         * Plus de concaténation dynamique hasardeuse. Tout est mappé ici.
+         * ------------------------------------------------------------------
+         */
+        const THEME_CONFIG = {
+            medecine: {
+                accent: "text-sky-400",
+                badge: "bg-sky-500/10 text-sky-300 border-sky-500/20",
+                button: "bg-slate-800 hover:bg-sky-600 border-white/10 hover:border-sky-400 text-white",
+                activeNav: "bg-sky-500/10 text-sky-300 border-l-2 border-sky-400",
+                gradientIcon: "from-sky-500/20 to-blue-600/20 text-sky-400",
+                progressBar: "bg-sky-500"
+            },
+            gourmand: {
+                accent: "text-rose-400",
+                badge: "bg-rose-500/10 text-rose-300 border-rose-500/20",
+                button: "bg-slate-800 hover:bg-rose-600 border-white/10 hover:border-rose-400 text-white",
+                activeNav: "bg-rose-500/10 text-rose-300 border-l-2 border-rose-400",
+                gradientIcon: "from-rose-500/20 to-red-600/20 text-rose-400",
+                progressBar: "bg-rose-500"
+            },
+            culture: {
+                accent: "text-purple-400",
+                badge: "bg-purple-500/10 text-purple-300 border-purple-500/20",
+                button: "bg-slate-800 hover:bg-purple-600 border-white/10 hover:border-purple-400 text-white",
+                activeNav: "bg-purple-500/10 text-purple-300 border-l-2 border-purple-400",
+                gradientIcon: "from-purple-500/20 to-indigo-600/20 text-purple-400",
+                progressBar: "bg-purple-500"
+            },
+            code: {
+                accent: "text-orange-400",
+                badge: "bg-orange-500/10 text-orange-300 border-orange-500/20",
+                button: "bg-slate-800 hover:bg-orange-600 border-white/10 hover:border-orange-400 text-white",
+                activeNav: "bg-orange-500/10 text-orange-300 border-l-2 border-orange-400",
+                gradientIcon: "from-orange-500/20 to-amber-600/20 text-orange-400",
+                progressBar: "bg-orange-500"
+            }
+        };
+
+        /* * CONFIG IA TARGETS
+         * Définition des outils pour les badges
+         */
+        const AI_TOOLS = {
+            gemini: { label: "Gemini Advanced", icon: "fa-gem", color: "text-blue-300" },
+            notebook: { label: "NotebookLM", icon: "fa-book-journal-whills", color: "text-emerald-300" },
+            python: { label: "Python Sandbox", icon: "fa-python", color: "text-yellow-300" },
+            mistral: { label: "Mistral Large", icon: "fa-wind", color: "text-indigo-300" }
+        };
+
+        /* * ------------------------------------------------------------------
+         * DATA LAYER (Phase 1: Enrichissement Métadonnées)
+         * Ajout de 'aiTags' et 'workflow' pour la pédagogie
+         * ------------------------------------------------------------------
+         */
         const DATA = {
             medecine: {
                 title: "Médecine Interne & Immuno",
-                theme: "blue",
                 icon: "fa-user-doctor",
                 img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2070&auto=format&fit=crop",
                 prompts: [
                     {
                         id: "m1",
-                        title: "Le Staff Universitaire (Zotero)",
+                        title: "Le Staff Universitaire (Synthèse)",
                         desc: "Analyse croisée de littérature médicale de haut niveau.",
+                        aiTags: ["notebook", "gemini"],
+                        workflow: [
+                            "Exportez 5-10 articles (PDF) depuis Zotero.",
+                            "Chargez-les dans une source NotebookLM.",
+                            "Utilisez ce prompt pour générer la synthèse."
+                        ],
                         inputs: [
                             {key: "sujet", label: "Sujet Pathologique", placeholder: "ex: Lupus Systémique"},
                             {key: "nb_sources", label: "Nombre d'articles", placeholder: "ex: 5"}
@@ -89,6 +145,11 @@
                         id: "m2",
                         title: "Le Physiopathologiste Moléculaire",
                         desc: "Visualisation mentale des mécanismes complexes.",
+                        aiTags: ["gemini"],
+                        workflow: [
+                            "Utilisez ce prompt pour comprendre un mécanisme obscure.",
+                            "Demandez ensuite à Gemini de générer un schéma (Imagen 3)."
+                        ],
                         inputs: [
                             {key: "patho", label: "Maladie / Mécanisme", placeholder: "ex: Syndrome d'Activation Macrophagique"}
                         ],
@@ -98,6 +159,7 @@
                         id: "m3",
                         title: "L'Avocat du Diable (Diagnostic)",
                         desc: "Lutte contre le biais de confirmation.",
+                        aiTags: ["gemini", "mistral"],
                         inputs: [
                             {key: "diag", label: "Diagnostic suspecté", placeholder: "ex: Maladie de Horton"},
                             {key: "signes", label: "Signes présents", placeholder: "ex: Céphalées, VS élevée"}
@@ -108,7 +170,6 @@
             },
             gourmand: {
                 title: "Dr GOURMAND (Le Jeu)",
-                theme: "rose",
                 icon: "fa-skull-crossbones",
                 img: "https://images.unsplash.com/photo-1516574187841-69301976e499?q=80&w=2070&auto=format&fit=crop",
                 prompts: [
@@ -116,6 +177,12 @@
                         id: "g1",
                         title: "MOTEUR DE JEU v2 (Start)",
                         desc: "Lancement de la simulation hardcore.",
+                        aiTags: ["gemini"],
+                        workflow: [
+                            "Ouvrez une nouvelle conversation vierge.",
+                            "Copiez ce prompt Système.",
+                            "Ne donnez aucun indice supplémentaire à l'IA."
+                        ],
                         inputs: [
                             {key: "specialite", label: "Domaine", placeholder: "Médecine Interne / Infectieux"},
                             {key: "difficulte", label: "Difficulté (1-10)", placeholder: "9"}
@@ -126,6 +193,7 @@
                         id: "g2",
                         title: "Action : Le Coup de Poker",
                         desc: "Tenter un traitement sans preuve formelle.",
+                        aiTags: ["gemini"],
                         inputs: [
                             {key: "tt", label: "Traitement testé", placeholder: "ex: Bolus Solumedrol 1g"}
                         ],
@@ -135,7 +203,6 @@
             },
             culture: {
                 title: "Culture & Savoir Absolu",
-                theme: "purple",
                 icon: "fa-book-open-reader",
                 img: "https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=2074&auto=format&fit=crop",
                 prompts: [
@@ -143,6 +210,7 @@
                         id: "c1",
                         title: "Le Dîner des Esprits",
                         desc: "Simulation de débat philosophique.",
+                        aiTags: ["gemini", "mistral"],
                         inputs: [
                             {key: "invites", label: "Invités", placeholder: "Camus, Nietzsche, Spinoza"},
                             {key: "theme", label: "Sujet du débat", placeholder: "L'intelligence artificielle a-t-elle une âme ?"}
@@ -153,6 +221,7 @@
                         id: "c2",
                         title: "Trivial Pursuit Adaptatif",
                         desc: "Quiz infini qui apprend de votre niveau.",
+                        aiTags: ["gemini"],
                         inputs: [
                             {key: "themes", label: "Thèmes", placeholder: "Histoire, Géo, Art, Sciences"}
                         ],
@@ -162,7 +231,6 @@
             },
             code: {
                 title: "Code, Création & Tech",
-                theme: "orange",
                 icon: "fa-code",
                 img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
                 prompts: [
@@ -170,6 +238,12 @@
                         id: "dev1",
                         title: "L'Architecte Web (One-File)",
                         desc: "Crée des mini-apps complètes.",
+                        aiTags: ["gemini", "python"],
+                        workflow: [
+                            "Demandez le code complet.",
+                            "Copiez-le dans un fichier index.html.",
+                            "Lancez dans le navigateur."
+                        ],
                         inputs: [
                             {key: "app", label: "Idée d'application", placeholder: "Calculateur de clairance rénale design"}
                         ],
@@ -179,6 +253,7 @@
                         id: "chess",
                         title: "Le Grand Maître (Vision)",
                         desc: "Analyse de position d'échecs.",
+                        aiTags: ["gemini"],
                         inputs: [],
                         template: (v) => `(Action : Upload une capture d'écran de l'échiquier)\n\nAnalyse cette position comme un Grand Maître.\n1. Évaluation : Qui est mieux ? (+/-)\n2. Candidats : Quels sont les 3 coups candidats pour le trait ?\n3. Plan : Quel est le plan stratégique à long terme (structure de pions, cases faibles) ?\n4. Menace : Y a-t-il une tactique immédiate ?`
                     }
@@ -186,37 +261,52 @@
             }
         };
 
-        // --- COMPOSANTS ---
+        // --- COMPOSANTS REACT ---
 
-        const Sidebar = ({ active, setActive }) => (
-            <div className="w-full md:w-20 lg:w-72 glass flex md:flex-col border-r border-white/10 z-50 md:h-screen fixed md:relative bottom-0">
-                <div className="p-6 hidden md:flex flex-col items-center lg:items-start">
-                    <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 hidden lg:block">CODEX</h1>
-                    <span className="text-[10px] text-slate-400 tracking-widest font-mono mt-1 hidden lg:block">ULTIMA v6.0</span>
-                    <i className="fa-solid fa-cube text-3xl text-blue-500 lg:hidden"></i>
+        const Sidebar = ({ active, setActive }) => {
+            return (
+                <div className="w-full md:w-20 lg:w-72 glass flex md:flex-col border-r border-white/10 z-50 md:h-screen fixed md:relative bottom-0">
+                    <div className="p-6 hidden md:flex flex-col items-center lg:items-start">
+                        <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-200 to-slate-400 hidden lg:block tracking-tight">
+                            CODEX
+                        </h1>
+                        <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-white/5 font-mono hidden lg:block">v7.0</span>
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse hidden lg:block"></span>
+                        </div>
+                        <i className="fa-solid fa-cube text-3xl text-slate-500 lg:hidden"></i>
+                    </div>
+                    
+                    <nav className="flex-1 flex md:flex-col justify-around md:justify-start gap-2 p-2 overflow-x-auto md:overflow-visible no-scrollbar">
+                        {Object.entries(DATA).map(([key, cat]) => {
+                            const styles = THEME_CONFIG[key];
+                            const isActive = active === key;
+                            
+                            return (
+                                <button
+                                    key={key}
+                                    onClick={() => setActive(key)}
+                                    className={`p-3 rounded-xl flex items-center gap-4 transition-all duration-300 group
+                                    ${isActive ? styles.activeNav : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'}`}
+                                >
+                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br ${styles.gradientIcon} group-hover:scale-110 transition-transform shadow-lg`}>
+                                        <i className={`fa-solid ${cat.icon}`}></i>
+                                    </div>
+                                    <span className="font-medium hidden lg:block text-sm">{cat.title.split(' ')[0]}...</span>
+                                </button>
+                            );
+                        })}
+                    </nav>
                 </div>
-                
-                <nav className="flex-1 flex md:flex-col justify-around md:justify-start gap-2 p-2 overflow-x-auto md:overflow-visible">
-                    {Object.entries(DATA).map(([key, cat]) => (
-                        <button
-                            key={key}
-                            onClick={() => setActive(key)}
-                            className={`p-3 rounded-xl flex items-center gap-4 transition-all duration-300 group
-                            ${active === key ? 'bg-white/10 text-white shadow-lg border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-                        >
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-${cat.theme}-500/20 to-${cat.theme}-600/20 text-${cat.theme}-400 group-hover:scale-110 transition-transform`}>
-                                <i className={`fa-solid ${cat.icon}`}></i>
-                            </div>
-                            <span className="font-medium hidden lg:block">{cat.title}</span>
-                        </button>
-                    ))}
-                </nav>
-            </div>
-        );
+            );
+        };
 
-        const PromptCard = ({ item, theme }) => {
+        const PromptCard = ({ item, themeKey }) => {
             const [inputs, setInputs] = useState({});
             const [copied, setCopied] = useState(false);
+            const [showWorkflow, setShowWorkflow] = useState(false);
+            
+            const styles = THEME_CONFIG[themeKey];
 
             const handleInput = (key, value) => {
                 setInputs(prev => ({...prev, [key]: value}));
@@ -231,28 +321,62 @@
             };
 
             return (
-                <div className="glass rounded-2xl p-6 hover:border-white/20 transition-all duration-300 group animate-slide">
-                    <div className="flex justify-between items-start mb-4">
+                <div className="glass rounded-2xl p-6 hover:border-white/20 transition-all duration-300 group animate-fade relative overflow-hidden">
+                    {/* Header Card */}
+                    <div className="flex justify-between items-start mb-4 relative z-10">
                         <div>
-                            <h3 className="text-xl font-bold text-white group-hover:text-blue-300 transition-colors">{item.title}</h3>
-                            <p className="text-sm text-slate-400 mt-1">{item.desc}</p>
+                            <div className="flex items-center gap-2 mb-1">
+                                <h3 className="text-lg font-bold text-slate-100 group-hover:text-white transition-colors">{item.title}</h3>
+                                {/* Badges IA Target */}
+                                {item.aiTags && item.aiTags.map(tag => (
+                                    <div key={tag} className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-950 border border-white/10 text-[10px] text-slate-400" title={`Optimisé pour ${AI_TOOLS[tag].label}`}>
+                                        <i className={`fa-solid ${AI_TOOLS[tag].icon} ${AI_TOOLS[tag].color}`}></i>
+                                        <span className="hidden sm:inline">{AI_TOOLS[tag].label}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-sm text-slate-400">{item.desc}</p>
                         </div>
-                        <span className={`text-${theme}-400 text-xs font-mono border border-${theme}-400/30 px-2 py-1 rounded bg-${theme}-400/10`}>PROMPT</span>
                     </div>
 
-                    {/* Zone de saisie dynamique (Variables) */}
+                    {/* Section Workflow Pédagogique (Si présent) */}
+                    {item.workflow && (
+                        <div className="mb-4">
+                            <button 
+                                onClick={() => setShowWorkflow(!showWorkflow)}
+                                className="text-xs flex items-center gap-2 text-slate-500 hover:text-slate-300 transition-colors"
+                            >
+                                <i className={`fa-solid fa-chevron-${showWorkflow ? 'down' : 'right'}`}></i>
+                                Workflow recommandé
+                            </button>
+                            
+                            {showWorkflow && (
+                                <div className="mt-2 p-3 bg-slate-900/50 rounded-lg border-l-2 border-slate-600">
+                                    <ol className="list-decimal list-inside text-xs text-slate-400 space-y-1">
+                                        {item.workflow.map((step, i) => (
+                                            <li key={i}>{step}</li>
+                                        ))}
+                                    </ol>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Zone de saisie dynamique */}
                     {item.inputs && item.inputs.length > 0 && (
-                        <div className="bg-black/40 rounded-lg p-3 mb-4 border border-white/5">
-                            <div className="text-[10px] uppercase text-slate-500 font-bold mb-2 tracking-wider">Variables</div>
+                        <div className="bg-slate-950/40 rounded-lg p-3 mb-4 border border-white/5">
+                            <div className="text-[10px] uppercase text-slate-500 font-bold mb-2 tracking-wider flex items-center gap-2">
+                                <i className="fa-solid fa-sliders"></i> Variables
+                            </div>
                             <div className="grid gap-3">
                                 {item.inputs.map((inp) => (
                                     <div key={inp.key} className="flex flex-col">
-                                        <label className="text-xs text-slate-300 mb-1">{inp.label}</label>
+                                        <label className="text-[11px] text-slate-400 mb-1">{inp.label}</label>
                                         <input 
                                             type="text" 
                                             placeholder={inp.placeholder}
                                             onChange={(e) => handleInput(inp.key, e.target.value)}
-                                            className="bg-slate-900/80 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                                            className="bg-slate-900 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-slate-500 transition-colors placeholder-slate-700"
                                         />
                                     </div>
                                 ))}
@@ -261,18 +385,19 @@
                     )}
 
                     {/* Preview du Prompt */}
-                    <div className="relative mt-4">
-                        <div className="absolute -top-3 left-3 bg-slate-800 text-[10px] text-slate-400 px-2 rounded border border-white/10">PREVIEW</div>
-                        <pre className="bg-slate-950/60 rounded-xl p-4 pt-6 text-xs text-slate-300 font-mono whitespace-pre-wrap border border-white/5 max-h-48 overflow-y-auto custom-scrollbar">
+                    <div className="relative group/code">
+                        <div className="absolute -top-3 left-3 bg-slate-900 text-[10px] text-slate-500 px-2 rounded border border-white/5 font-mono">OUTPUT</div>
+                        <pre className="bg-slate-950/80 rounded-xl p-4 pt-6 text-xs text-slate-300 font-mono whitespace-pre-wrap border border-white/5 max-h-48 overflow-y-auto custom-scrollbar shadow-inner">
                             {finalPrompt}
                         </pre>
+                        
+                        {/* Bouton Copier Stylisé selon le thème */}
                         <button 
                             onClick={copy}
-                            className={`absolute bottom-3 right-3 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-lg flex items-center gap-2
-                            ${copied ? 'bg-green-500 text-white' : `bg-slate-800 hover:bg-${theme}-500 text-white border border-white/10`}`}
+                            className={`absolute bottom-3 right-3 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-lg flex items-center gap-2 ${copied ? 'bg-emerald-600 text-white border-transparent' : styles.button}`}
                         >
                             <i className={`fa-solid ${copied ? 'fa-check' : 'fa-copy'}`}></i>
-                            {copied ? 'Copié !' : 'Copier'}
+                            {copied ? 'Copié' : 'Copier'}
                         </button>
                     </div>
                 </div>
@@ -281,32 +406,34 @@
 
         const MainContent = ({ active }) => {
             const data = DATA[active];
+            const styles = THEME_CONFIG[active];
             
             return (
-                <div className="flex-1 h-screen overflow-y-auto p-4 md:p-8 relative">
-                    {/* Header Image Dynamique */}
-                    <div className="relative h-64 rounded-3xl overflow-hidden mb-10 border border-white/10 shadow-2xl group">
-                        <img src={data.img} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent"></div>
-                        <div className="absolute bottom-0 left-0 p-8">
-                            <h2 className="text-5xl font-black text-white mb-2 tracking-tight drop-shadow-lg">{data.title}</h2>
+                <div className="flex-1 h-screen overflow-y-auto p-4 md:p-8 relative custom-scrollbar">
+                    {/* Header Image Dynamique avec Overlay Thématique */}
+                    <div className="relative h-48 md:h-64 rounded-3xl overflow-hidden mb-10 border border-white/5 shadow-2xl group">
+                        <img src={data.img} className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-[2s]" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent"></div>
+                        
+                        <div className="absolute bottom-0 left-0 p-6 md:p-8 w-full">
+                            <h2 className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tight drop-shadow-xl">{data.title}</h2>
                             <div className="flex items-center gap-3">
-                                <span className={`h-1 w-12 bg-${data.theme}-500 rounded-full`}></span>
-                                <p className="text-slate-200 text-lg font-light">Bibliothèque de Prompts Intelligents</p>
+                                <span className={`h-1.5 w-12 rounded-full ${styles.progressBar}`}></span>
+                                <p className={`text-sm md:text-lg font-medium ${styles.accent}`}>Bibliothèque de Prompts Intelligents</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Grille de Prompts */}
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 pb-32">
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-32">
                         {data.prompts.map(p => (
-                            <PromptCard key={p.id} item={p} theme={data.theme} />
+                            <PromptCard key={p.id} item={p} themeKey={active} />
                         ))}
                     </div>
 
                     {/* Footer */}
-                    <div className="text-center text-slate-600 text-xs py-10 font-mono">
-                        Propulsé par Gemini 1.5 Pro • Édition Personnelle Dr Gourmand
+                    <div className="text-center text-slate-600 text-[10px] py-10 font-mono uppercase tracking-widest">
+                        Codex v7.0 • Foundation Edition • GitHub Pages Compatible
                     </div>
                 </div>
             );
