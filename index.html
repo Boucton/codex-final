@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CODEX ULTIMA v7.0 - Foundation</title>
+    <title>CODEX ULTIMA v8.0 - Cognitive Hub</title>
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* Configuration Base */
         :root {
             --bg-deep: #030712;
-            --glass-panel: rgba(17, 24, 39, 0.75);
+            --glass-panel: rgba(17, 24, 39, 0.85);
             --glass-border: rgba(255, 255, 255, 0.08);
         }
         body {
@@ -26,35 +25,28 @@
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
         }
-        
-        /* Background Grid Subtil */
         .grid-bg {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
             background-image: 
                 linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 40px 40px;
-            mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 100%);
+            mask-image: radial-gradient(circle at 50% 30%, black 20%, transparent 100%);
         }
-
-        /* Utilitaires Glassmorphism */
         .glass {
             background: var(--glass-panel);
             backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
         }
-
-        /* Scrollbar custom */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
         
         /* Animations */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade { animation: fadeIn 0.3s ease-out forwards; }
-        
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
     </style>
 </head>
 <body>
@@ -64,228 +56,247 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        /* * ------------------------------------------------------------------
-         * CONFIGURATION DES THÈMES (Phase 1: Static Tailwind)
-         * Plus de concaténation dynamique hasardeuse. Tout est mappé ici.
-         * ------------------------------------------------------------------
-         */
+        /* --- CONFIGURATION & THEMES --- */
         const THEME_CONFIG = {
             medecine: {
                 accent: "text-sky-400",
+                bgAccent: "bg-sky-500",
+                borderAccent: "border-sky-500",
                 badge: "bg-sky-500/10 text-sky-300 border-sky-500/20",
                 button: "bg-slate-800 hover:bg-sky-600 border-white/10 hover:border-sky-400 text-white",
                 activeNav: "bg-sky-500/10 text-sky-300 border-l-2 border-sky-400",
                 gradientIcon: "from-sky-500/20 to-blue-600/20 text-sky-400",
-                progressBar: "bg-sky-500"
             },
             gourmand: {
                 accent: "text-rose-400",
+                bgAccent: "bg-rose-500",
+                borderAccent: "border-rose-500",
                 badge: "bg-rose-500/10 text-rose-300 border-rose-500/20",
                 button: "bg-slate-800 hover:bg-rose-600 border-white/10 hover:border-rose-400 text-white",
                 activeNav: "bg-rose-500/10 text-rose-300 border-l-2 border-rose-400",
                 gradientIcon: "from-rose-500/20 to-red-600/20 text-rose-400",
-                progressBar: "bg-rose-500"
             },
             culture: {
                 accent: "text-purple-400",
+                bgAccent: "bg-purple-500",
+                borderAccent: "border-purple-500",
                 badge: "bg-purple-500/10 text-purple-300 border-purple-500/20",
                 button: "bg-slate-800 hover:bg-purple-600 border-white/10 hover:border-purple-400 text-white",
                 activeNav: "bg-purple-500/10 text-purple-300 border-l-2 border-purple-400",
                 gradientIcon: "from-purple-500/20 to-indigo-600/20 text-purple-400",
-                progressBar: "bg-purple-500"
             },
             code: {
                 accent: "text-orange-400",
+                bgAccent: "bg-orange-500",
+                borderAccent: "border-orange-500",
                 badge: "bg-orange-500/10 text-orange-300 border-orange-500/20",
                 button: "bg-slate-800 hover:bg-orange-600 border-white/10 hover:border-orange-400 text-white",
                 activeNav: "bg-orange-500/10 text-orange-300 border-l-2 border-orange-400",
                 gradientIcon: "from-orange-500/20 to-amber-600/20 text-orange-400",
-                progressBar: "bg-orange-500"
             }
         };
 
-        /* * CONFIG IA TARGETS
-         * Définition des outils pour les badges
-         */
         const AI_TOOLS = {
-            gemini: { label: "Gemini Advanced", icon: "fa-gem", color: "text-blue-300" },
+            gemini: { label: "Gemini Pro", icon: "fa-gem", color: "text-blue-300" },
             notebook: { label: "NotebookLM", icon: "fa-book-journal-whills", color: "text-emerald-300" },
-            python: { label: "Python Sandbox", icon: "fa-python", color: "text-yellow-300" },
-            mistral: { label: "Mistral Large", icon: "fa-wind", color: "text-indigo-300" }
+            mistral: { label: "Mistral", icon: "fa-wind", color: "text-indigo-300" },
+            python: { label: "Python", icon: "fa-python", color: "text-yellow-300" }
         };
 
-        /* * ------------------------------------------------------------------
-         * DATA LAYER (Phase 1: Enrichissement Métadonnées)
-         * Ajout de 'aiTags' et 'workflow' pour la pédagogie
-         * ------------------------------------------------------------------
-         */
+        /* --- DATA LAYER (Avec Variantes & Icônes) --- */
         const DATA = {
             medecine: {
-                title: "Médecine Interne & Immuno",
+                title: "Médecine Interne",
                 icon: "fa-user-doctor",
-                img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2070&auto=format&fit=crop",
+                img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=2000&q=80",
                 prompts: [
                     {
                         id: "m1",
-                        title: "Le Staff Universitaire (Synthèse)",
-                        desc: "Analyse croisée de littérature médicale de haut niveau.",
+                        title: "Synthèse Bibliographique",
+                        itemIcon: "fa-book-medical",
+                        desc: "Analyse croisée de littérature pour staff ou recherche.",
                         aiTags: ["notebook", "gemini"],
-                        workflow: [
-                            "Exportez 5-10 articles (PDF) depuis Zotero.",
-                            "Chargez-les dans une source NotebookLM.",
-                            "Utilisez ce prompt pour générer la synthèse."
-                        ],
+                        workflow: ["Export Zotero (PDF)", "Upload NotebookLM", "Lancer Prompt"],
                         inputs: [
-                            {key: "sujet", label: "Sujet Pathologique", placeholder: "ex: Lupus Systémique"},
-                            {key: "nb_sources", label: "Nombre d'articles", placeholder: "ex: 5"}
+                            {key: "sujet", label: "Sujet", placeholder: "ex: Vascularites ANCA"},
+                            {key: "nb", label: "Nb Sources", placeholder: "5"}
                         ],
-                        template: (v) => `Agis comme un Professeur de Médecine Interne en milieu hospitalo-universitaire. J'ai chargé ${v.nb_sources || 'plusieurs'} articles récents concernant ${v.sujet || 'une pathologie'} dans NotebookLM.\n\nTACHE :\nRéalise une synthèse structurée de ces documents en te focalisant sur :\n1. Les nouvelles cibles thérapeutiques (mécanisme moléculaire précis).\n2. Les points de divergence entre les auteurs (controverses).\n3. La validité méthodologique : identifie les biais potentiels dans les cohortes citées.\n\nFORMAT DE SORTIE :\n- Tableau comparatif des études.\n- Conclusion pratique : "Ce qui change pour le clinicien en 2024".\n- Niveau de preuve (Grades HAS).`
+                        templates: {
+                            standard: (v) => `Agis comme un Professeur de Médecine Interne. J'ai chargé ${v.nb || 'des'} articles sur ${v.sujet || 'le sujet'} dans NotebookLM.\n\nTACHE : Synthèse structurée focalisée sur :\n1. Nouvelles cibles thérapeutiques.\n2. Controverses actuelles.\n3. Biais méthodologiques.\n\nSORTIE : Tableau comparatif + Conclusion "Take Home Message".`,
+                            short: (v) => `Résume les points clés de ces articles sur ${v.sujet} en 3 bullet points pour un brief rapide.`,
+                            hardcore: (v) => `Analyse critique impitoyable des articles sur ${v.sujet}. Cherche chaque biais statistique, chaque conflit d'intérêt et chaque faiblesse de p-value. Ne laisse rien passer.`
+                        }
                     },
                     {
                         id: "m2",
-                        title: "Le Physiopathologiste Moléculaire",
-                        desc: "Visualisation mentale des mécanismes complexes.",
+                        title: "Physiopathologie Moléculaire",
+                        itemIcon: "fa-dna",
+                        desc: "Visualisation des cascades inflammatoires.",
                         aiTags: ["gemini"],
-                        workflow: [
-                            "Utilisez ce prompt pour comprendre un mécanisme obscure.",
-                            "Demandez ensuite à Gemini de générer un schéma (Imagen 3)."
-                        ],
-                        inputs: [
-                            {key: "patho", label: "Maladie / Mécanisme", placeholder: "ex: Syndrome d'Activation Macrophagique"}
-                        ],
-                        template: (v) => `Explique la physiopathologie détaillée de : ${v.patho || 'la maladie'} au niveau cellulaire et moléculaire.\n\nCONSIGNES :\n1. Décris la cascade inflammatoire étape par étape (Signalisation -> Transcription -> Cytokines).\n2. Utilise des analogies visuelles fortes pour expliquer les interactions récepteurs-ligands.\n3. Fais le lien direct entre chaque étape moléculaire et le signe clinique observable au lit du patient.\n4. Liste les biothérapies (Anti-IL1, Anti-IL6, JAKi, etc.) qui ciblent spécifiquement ces étapes.`
+                        inputs: [{key: "patho", label: "Pathologie", placeholder: "ex: SAM"}],
+                        templates: {
+                            standard: (v) => `Explique la physiopathologie de ${v.patho} au niveau cellulaire/moléculaire.\n1. Cascade inflammatoire étape par étape.\n2. Analogies visuelles.\n3. Liens cliniques directs.\n4. Cibles des biothérapies.`,
+                            teaching: (v) => `Explique ${v.patho} à un externe en médecine. Utilise des métaphores simples (champ de bataille, usine) pour expliquer les cytokines.`
+                        }
                     },
                     {
                         id: "m3",
-                        title: "L'Avocat du Diable (Diagnostic)",
+                        title: "Red Team Diagnostic",
+                        itemIcon: "fa-chess-knight",
                         desc: "Lutte contre le biais de confirmation.",
                         aiTags: ["gemini", "mistral"],
                         inputs: [
-                            {key: "diag", label: "Diagnostic suspecté", placeholder: "ex: Maladie de Horton"},
-                            {key: "signes", label: "Signes présents", placeholder: "ex: Céphalées, VS élevée"}
+                            {key: "diag", label: "Mon hypothèse", placeholder: "Horton"},
+                            {key: "signes", label: "Signes", placeholder: "Céphalées..."}
                         ],
-                        template: (v) => `Je suspecte un diagnostic de ${v.diag || '...'} devant ce tableau : ${v.signes || '...'}.\n\nTON RÔLE : Tu es un "Red Team" médical. Ton but est de prouver que j'ai tort pour éviter l'erreur diagnostique.\n\nACTION :\n1. Liste 3 diagnostics différentiels (Mimics) qui pourraient parfaitement expliquer ce tableau mais qui sont plus graves ou nécessitent un traitement opposé.\n2. Pour chaque diagnostic alternatif, donne le "Key Feature" manquant que je dois aller chercher immédiatement.\n3. Calcule (estimation) la probabilité pré-test de mon diagnostic vs les autres.`
+                        templates: {
+                            standard: (v) => `Je suspecte ${v.diag} devant : ${v.signes}. Prouve que j'ai tort.\n1. Liste 3 diagnostics différentiels (Mimics) plus graves.\n2. Donne le "Key Feature" manquant pour chacun.\n3. Estime la probabilité pré-test.`
+                        }
                     }
                 ]
             },
             gourmand: {
-                title: "Dr GOURMAND (Le Jeu)",
+                title: "Dr GOURMAND (Jeu)",
                 icon: "fa-skull-crossbones",
-                img: "https://images.unsplash.com/photo-1516574187841-69301976e499?q=80&w=2070&auto=format&fit=crop",
+                // Image corrigée (ambiance sombre urgences)
+                img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=2000&q=80",
                 prompts: [
                     {
                         id: "g1",
-                        title: "MOTEUR DE JEU v2 (Start)",
-                        desc: "Lancement de la simulation hardcore.",
+                        title: "Moteur de Jeu v2",
+                        itemIcon: "fa-gamepad",
+                        desc: "Lancement de la simulation clinique hardcore.",
                         aiTags: ["gemini"],
-                        workflow: [
-                            "Ouvrez une nouvelle conversation vierge.",
-                            "Copiez ce prompt Système.",
-                            "Ne donnez aucun indice supplémentaire à l'IA."
-                        ],
+                        workflow: ["Nouveau Chat", "Copier Prompt", "Aucun indice"],
                         inputs: [
-                            {key: "specialite", label: "Domaine", placeholder: "Médecine Interne / Infectieux"},
-                            {key: "difficulte", label: "Difficulté (1-10)", placeholder: "9"}
+                            {key: "spe", label: "Spécialité", placeholder: "Infectieux"},
+                            {key: "diff", label: "Niveau (1-10)", placeholder: "9"}
                         ],
-                        template: (v) => `Tu es le Moteur de Simulation Clinique "Dr GOURMAND".\n\nPARAMÈTRES :\n- Spécialité : ${v.specialite || 'Médecine Interne'}\n- Difficulté : ${v.difficulte || 'Expert'}\n\nRÈGLES ABSOLUES (System Prompt) :\n1. Choisis SECRÈTEMENT un patient et un diagnostic complexe. NE LE RÉVÈLE JAMAIS.\n2. Le jeu est au tour par tour. J'agis (examen, question, bio), tu réponds par le résultat brut.\n3. GESTION DU TEMPS : Chaque action coûte du temps virtuel. Si je suis lent ou imprécis, l'état hémodynamique du patient se dégrade.\n4. FIN : Victoire si je trouve le diagnostic et le traitement. Défaite si le patient décède.\n\nCommence maintenant par l'arrivée du patient aux urgences (constantes, motif). C'est à moi.`
+                        templates: {
+                            standard: (v) => `Tu es le Moteur "Dr GOURMAND".\nPARAM: Spécialité ${v.spe}, Niveau ${v.diff}.\n\nRÈGLES:\n1. Choisis SECRÈTEMENT patient + diagnostic.\n2. Tour par tour. Tu donnes juste le résultat.\n3. Gère le TEMPS (Heures).\n4. Si je traîne -> le patient meurt.\n\nCommence par l'arrivée aux urgences.`,
+                            hardcore: (v) => `Mode CAUCHEMAR Dr GOURMAND. Spécialité ${v.spe}. Le patient est instable d'emblée. La moindre erreur thérapeutique est fatale. Sois cryptique dans la séméiologie.`
+                        }
                     },
                     {
                         id: "g2",
-                        title: "Action : Le Coup de Poker",
-                        desc: "Tenter un traitement sans preuve formelle.",
+                        title: "Coup de Poker",
+                        itemIcon: "fa-syringe",
+                        desc: "Traitement d'épreuve risqué.",
                         aiTags: ["gemini"],
-                        inputs: [
-                            {key: "tt", label: "Traitement testé", placeholder: "ex: Bolus Solumedrol 1g"}
-                        ],
-                        template: (v) => `(ACTION EN JEU) : Je prends un risque calculé. Je décide d'administrer : ${v.tt || 'un traitement'}.\n\nSimule les effets sur les 6 prochaines heures :\n- Si c'était le bon diagnostic : amélioration spectaculaire.\n- Si c'était infectieux/septique : aggravation brutale (choc).\n- Décris uniquement la surveillance infirmière et les constantes.`
+                        inputs: [{key: "tt", label: "Traitement", placeholder: "Solumedrol 1g"}],
+                        templates: {
+                            standard: (v) => `ACTION JEU: J'administre ${v.tt}. Simule les effets sur 6h. Si diagnostic faux -> complications.`
+                        }
                     }
                 ]
             },
             culture: {
-                title: "Culture & Savoir Absolu",
-                icon: "fa-book-open-reader",
-                img: "https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=2074&auto=format&fit=crop",
+                title: "Culture & Savoir",
+                icon: "fa-landmark",
+                img: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=2000&q=80",
                 prompts: [
                     {
                         id: "c1",
-                        title: "Le Dîner des Esprits",
-                        desc: "Simulation de débat philosophique.",
-                        aiTags: ["gemini", "mistral"],
+                        title: "Débat Philosophique",
+                        itemIcon: "fa-comments",
+                        desc: "Simulation de conversation entre grands esprits.",
+                        aiTags: ["mistral"],
                         inputs: [
-                            {key: "invites", label: "Invités", placeholder: "Camus, Nietzsche, Spinoza"},
-                            {key: "theme", label: "Sujet du débat", placeholder: "L'intelligence artificielle a-t-elle une âme ?"}
+                            {key: "guests", label: "Invités", placeholder: "Camus, Nietzsche"},
+                            {key: "topic", label: "Sujet", placeholder: "L'Absurde"}
                         ],
-                        template: (v) => `Organise une conversation (sous forme de script théâtral) entre ces personnages : ${v.invites || 'des philosophes'}.\n\nSUJET : ${v.theme || 'La vie'}.\n\nCONSIGNES :\n- Respecte scrupuleusement le style de chaque auteur (le vocabulaire, les concepts clés).\n- Ils doivent interagir, se couper la parole, être en désaccord.\n- Inclus des didascalies sur leurs expressions corporelles.\n- Termine par une synthèse qu'aurait pu écrire Hermann Hesse.`
+                        templates: {
+                            standard: (v) => `Script théâtral entre ${v.guests} sur : ${v.topic}.\nRespecte le style, le vocabulaire et les concepts de chacun. Ils doivent être en désaccord.`
+                        }
                     },
                     {
                         id: "c2",
-                        title: "Trivial Pursuit Adaptatif",
-                        desc: "Quiz infini qui apprend de votre niveau.",
+                        title: "Quiz Adaptatif",
+                        itemIcon: "fa-brain",
+                        desc: "Apprentissage par l'erreur.",
                         aiTags: ["gemini"],
-                        inputs: [
-                            {key: "themes", label: "Thèmes", placeholder: "Histoire, Géo, Art, Sciences"}
-                        ],
-                        template: (v) => `Génère un Quiz de 5 questions sur : ${v.themes || 'Culture G'}.\n\nMÉCANIQUE :\n- Commence niveau Difficile.\n- Pose une seule question à la fois.\n- Attends ma réponse.\n- Si je réponds juste : la prochaine question doit être plus dure et plus pointue.\n- Si je réponds faux : explique la réponse avec une anecdote mémorable, puis baisse légèrement la difficulté.\n- Affiche mon score ELO virtuel.`
+                        inputs: [{key: "th", label: "Thème", placeholder: "Histoire"}],
+                        templates: {
+                            standard: (v) => `Quiz 5 questions sur ${v.th}. Niveau Difficile. Une par une. Si juste -> plus dur. Si faux -> explication + anecdote.`
+                        }
                     }
                 ]
             },
             code: {
-                title: "Code, Création & Tech",
-                icon: "fa-code",
-                img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
+                title: "Code & Tech",
+                icon: "fa-terminal",
+                img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=2000&q=80",
                 prompts: [
                     {
                         id: "dev1",
-                        title: "L'Architecte Web (One-File)",
-                        desc: "Crée des mini-apps complètes.",
+                        title: "Architecte Web",
+                        itemIcon: "fa-laptop-code",
+                        desc: "Génération d'apps one-file.",
                         aiTags: ["gemini", "python"],
-                        workflow: [
-                            "Demandez le code complet.",
-                            "Copiez-le dans un fichier index.html.",
-                            "Lancez dans le navigateur."
-                        ],
-                        inputs: [
-                            {key: "app", label: "Idée d'application", placeholder: "Calculateur de clairance rénale design"}
-                        ],
-                        template: (v) => `Agis comme un développeur Fullstack Senior expert en React et Tailwind CSS.\n\nPROJET : Je veux créer une application web "Single File" (un seul fichier HTML) pour : ${v.app || 'un outil'}.\n\nEXIGENCES :\n1. Utilise React et Babel via CDN (comme dans l'exemple du Codex).\n2. Design : Sombre, moderne, "Medical Grade", responsive.\n3. Code robuste : gestion des erreurs (inputs vides).\n4. Fournis le code complet prêt à être copié-collé sans aucune explication préliminaire.`
-                    },
-                    {
-                        id: "chess",
-                        title: "Le Grand Maître (Vision)",
-                        desc: "Analyse de position d'échecs.",
-                        aiTags: ["gemini"],
-                        inputs: [],
-                        template: (v) => `(Action : Upload une capture d'écran de l'échiquier)\n\nAnalyse cette position comme un Grand Maître.\n1. Évaluation : Qui est mieux ? (+/-)\n2. Candidats : Quels sont les 3 coups candidats pour le trait ?\n3. Plan : Quel est le plan stratégique à long terme (structure de pions, cases faibles) ?\n4. Menace : Y a-t-il une tactique immédiate ?`
+                        inputs: [{key: "app", label: "Idée", placeholder: "Calculateur"}],
+                        templates: {
+                            standard: (v) => `Expert React/Tailwind. Crée une Single File App pour : ${v.app}. Design sombre, pro. Code complet sans explication.`
+                        }
                     }
                 ]
             }
         };
 
-        // --- COMPOSANTS REACT ---
+        /* --- HOOKS --- */
+        const useLocalStorage = (key, initialValue) => {
+            const [storedValue, setStoredValue] = useState(() => {
+                try {
+                    const item = window.localStorage.getItem(key);
+                    return item ? JSON.parse(item) : initialValue;
+                } catch (error) { return initialValue; }
+            });
+            const setValue = (value) => {
+                try {
+                    const valueToStore = value instanceof Function ? value(storedValue) : value;
+                    setStoredValue(valueToStore);
+                    window.localStorage.setItem(key, JSON.stringify(valueToStore));
+                } catch (error) { console.log(error); }
+            };
+            return [storedValue, setValue];
+        };
 
-        const Sidebar = ({ active, setActive }) => {
+        /* --- COMPONENTS --- */
+
+        const Sidebar = ({ active, setActive, view, setView }) => {
             return (
                 <div className="w-full md:w-20 lg:w-72 glass flex md:flex-col border-r border-white/10 z-50 md:h-screen fixed md:relative bottom-0">
-                    <div className="p-6 hidden md:flex flex-col items-center lg:items-start">
-                        <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-200 to-slate-400 hidden lg:block tracking-tight">
+                    <div className="p-6 hidden md:flex flex-col items-center lg:items-start cursor-pointer" onClick={() => setView('home')}>
+                        <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-100 to-slate-400 hidden lg:block tracking-tight">
                             CODEX
                         </h1>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-white/5 font-mono hidden lg:block">v7.0</span>
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse hidden lg:block"></span>
+                        <div className="flex items-center gap-2 mt-1 hidden lg:flex">
+                            <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-white/5 font-mono">v8.0</span>
+                            <span className="text-[10px] text-emerald-400 font-mono">ON-LINE</span>
                         </div>
                         <i className="fa-solid fa-cube text-3xl text-slate-500 lg:hidden"></i>
                     </div>
                     
-                    <nav className="flex-1 flex md:flex-col justify-around md:justify-start gap-2 p-2 overflow-x-auto md:overflow-visible no-scrollbar">
+                    <nav className="flex-1 flex md:flex-col gap-2 p-2 overflow-x-auto md:overflow-visible no-scrollbar">
+                        <button 
+                            onClick={() => setView('favorites')}
+                            className={`p-3 rounded-xl flex items-center gap-4 transition-all duration-300 group
+                            ${view === 'favorites' ? 'bg-yellow-500/10 text-yellow-300 border border-yellow-500/20' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
+                        >
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-yellow-500/20 group-hover:scale-110 transition-transform">
+                                <i className="fa-solid fa-star"></i>
+                            </div>
+                            <span className="font-medium hidden lg:block text-sm">Favoris</span>
+                        </button>
+
+                        <div className="h-px bg-white/5 my-2 hidden md:block"></div>
+
                         {Object.entries(DATA).map(([key, cat]) => {
                             const styles = THEME_CONFIG[key];
-                            const isActive = active === key;
-                            
+                            const isActive = active === key && view === 'home';
                             return (
                                 <button
                                     key={key}
-                                    onClick={() => setActive(key)}
+                                    onClick={() => { setActive(key); setView('home'); }}
                                     className={`p-3 rounded-xl flex items-center gap-4 transition-all duration-300 group
                                     ${isActive ? styles.activeNav : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'}`}
                                 >
@@ -301,18 +312,19 @@
             );
         };
 
-        const PromptCard = ({ item, themeKey }) => {
+        const PromptCard = ({ item, themeKey, isFav, toggleFav }) => {
             const [inputs, setInputs] = useState({});
             const [copied, setCopied] = useState(false);
-            const [showWorkflow, setShowWorkflow] = useState(false);
+            const [variant, setVariant] = useState('standard');
             
-            const styles = THEME_CONFIG[themeKey];
+            const styles = THEME_CONFIG[themeKey] || THEME_CONFIG['medecine']; // Fallback
 
-            const handleInput = (key, value) => {
-                setInputs(prev => ({...prev, [key]: value}));
-            };
+            const handleInput = (key, value) => setInputs(prev => ({...prev, [key]: value}));
 
-            const finalPrompt = useMemo(() => item.template(inputs), [inputs]);
+            const finalPrompt = useMemo(() => {
+                const tmpl = item.templates[variant] || item.templates['standard'];
+                return tmpl(inputs);
+            }, [inputs, variant, item]);
 
             const copy = () => {
                 navigator.clipboard.writeText(finalPrompt);
@@ -321,119 +333,197 @@
             };
 
             return (
-                <div className="glass rounded-2xl p-6 hover:border-white/20 transition-all duration-300 group animate-fade relative overflow-hidden">
-                    {/* Header Card */}
-                    <div className="flex justify-between items-start mb-4 relative z-10">
-                        <div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <h3 className="text-lg font-bold text-slate-100 group-hover:text-white transition-colors">{item.title}</h3>
-                                {/* Badges IA Target */}
-                                {item.aiTags && item.aiTags.map(tag => (
-                                    <div key={tag} className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-950 border border-white/10 text-[10px] text-slate-400" title={`Optimisé pour ${AI_TOOLS[tag].label}`}>
-                                        <i className={`fa-solid ${AI_TOOLS[tag].icon} ${AI_TOOLS[tag].color}`}></i>
-                                        <span className="hidden sm:inline">{AI_TOOLS[tag].label}</span>
-                                    </div>
-                                ))}
+                <div className="glass rounded-2xl p-6 border-t border-white/5 hover:border-white/20 transition-all duration-300 group animate-fade flex flex-col h-full">
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-start gap-3">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-slate-900 border border-white/5 text-lg ${styles.accent}`}>
+                                <i className={`fa-solid ${item.itemIcon || 'fa-bolt'}`}></i>
                             </div>
-                            <p className="text-sm text-slate-400">{item.desc}</p>
+                            <div>
+                                <h3 className="text-xl font-bold text-slate-100 leading-tight">{item.title}</h3>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {item.aiTags && item.aiTags.map(tag => (
+                                        <span key={tag} className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-slate-950 border border-white/10 text-slate-400">
+                                            <i className={`fa-solid ${AI_TOOLS[tag].icon} ${AI_TOOLS[tag].color}`}></i>
+                                            {AI_TOOLS[tag].label}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
+                        <button onClick={toggleFav} className={`text-lg transition-transform hover:scale-110 ${isFav ? 'text-yellow-400' : 'text-slate-700 hover:text-slate-400'}`}>
+                            <i className={`fa-${isFav ? 'solid' : 'regular'} fa-star`}></i>
+                        </button>
                     </div>
 
-                    {/* Section Workflow Pédagogique (Si présent) */}
-                    {item.workflow && (
-                        <div className="mb-4">
-                            <button 
-                                onClick={() => setShowWorkflow(!showWorkflow)}
-                                className="text-xs flex items-center gap-2 text-slate-500 hover:text-slate-300 transition-colors"
-                            >
-                                <i className={`fa-solid fa-chevron-${showWorkflow ? 'down' : 'right'}`}></i>
-                                Workflow recommandé
-                            </button>
-                            
-                            {showWorkflow && (
-                                <div className="mt-2 p-3 bg-slate-900/50 rounded-lg border-l-2 border-slate-600">
-                                    <ol className="list-decimal list-inside text-xs text-slate-400 space-y-1">
-                                        {item.workflow.map((step, i) => (
-                                            <li key={i}>{step}</li>
-                                        ))}
-                                    </ol>
-                                </div>
-                            )}
+                    <p className="text-sm text-slate-400 mb-6 leading-relaxed flex-1">{item.desc}</p>
+
+                    {/* Variant Selector */}
+                    {Object.keys(item.templates).length > 1 && (
+                        <div className="flex gap-1 bg-slate-950/50 p-1 rounded-lg mb-4 border border-white/5">
+                            {Object.keys(item.templates).map(v => (
+                                <button
+                                    key={v}
+                                    onClick={() => setVariant(v)}
+                                    className={`flex-1 py-1.5 text-[10px] uppercase font-bold tracking-wide rounded transition-colors
+                                    ${variant === v ? 'bg-slate-800 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}
+                                >
+                                    {v}
+                                </button>
+                            ))}
                         </div>
                     )}
 
-                    {/* Zone de saisie dynamique */}
+                    {/* Inputs */}
                     {item.inputs && item.inputs.length > 0 && (
-                        <div className="bg-slate-950/40 rounded-lg p-3 mb-4 border border-white/5">
-                            <div className="text-[10px] uppercase text-slate-500 font-bold mb-2 tracking-wider flex items-center gap-2">
-                                <i className="fa-solid fa-sliders"></i> Variables
-                            </div>
-                            <div className="grid gap-3">
-                                {item.inputs.map((inp) => (
-                                    <div key={inp.key} className="flex flex-col">
-                                        <label className="text-[11px] text-slate-400 mb-1">{inp.label}</label>
-                                        <input 
-                                            type="text" 
-                                            placeholder={inp.placeholder}
-                                            onChange={(e) => handleInput(inp.key, e.target.value)}
-                                            className="bg-slate-900 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-slate-500 transition-colors placeholder-slate-700"
-                                        />
-                                    </div>
-                                ))}
-                            </div>
+                        <div className="space-y-3 mb-4">
+                            {item.inputs.map((inp) => (
+                                <div key={inp.key}>
+                                    <input 
+                                        type="text" 
+                                        placeholder={inp.label + "..."}
+                                        onChange={(e) => handleInput(inp.key, e.target.value)}
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-slate-500 transition-colors placeholder-slate-600"
+                                    />
+                                </div>
+                            ))}
                         </div>
                     )}
 
-                    {/* Preview du Prompt */}
-                    <div className="relative group/code">
-                        <div className="absolute -top-3 left-3 bg-slate-900 text-[10px] text-slate-500 px-2 rounded border border-white/5 font-mono">OUTPUT</div>
-                        <pre className="bg-slate-950/80 rounded-xl p-4 pt-6 text-xs text-slate-300 font-mono whitespace-pre-wrap border border-white/5 max-h-48 overflow-y-auto custom-scrollbar shadow-inner">
+                    {/* Output Preview */}
+                    <div className="relative group/code mt-auto">
+                        <pre className="bg-slate-950 rounded-xl p-4 text-xs text-slate-400 font-mono whitespace-pre-wrap border border-white/5 max-h-40 overflow-y-auto custom-scrollbar">
                             {finalPrompt}
                         </pre>
-                        
-                        {/* Bouton Copier Stylisé selon le thème */}
                         <button 
                             onClick={copy}
-                            className={`absolute bottom-3 right-3 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-lg flex items-center gap-2 ${copied ? 'bg-emerald-600 text-white border-transparent' : styles.button}`}
+                            className={`absolute bottom-2 right-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-lg flex items-center gap-2 ${copied ? 'bg-emerald-600 text-white' : styles.button}`}
                         >
                             <i className={`fa-solid ${copied ? 'fa-check' : 'fa-copy'}`}></i>
                             {copied ? 'Copié' : 'Copier'}
                         </button>
                     </div>
+
+                    {/* Workflow Mini */}
+                    {item.workflow && (
+                        <div className="mt-4 pt-4 border-t border-white/5">
+                            <div className="flex flex-wrap gap-2 text-[10px] text-slate-500">
+                                {item.workflow.map((step, i) => (
+                                    <span key={i} className="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded">
+                                        <span className="w-4 h-4 rounded-full bg-slate-800 flex items-center justify-center text-[9px]">{i+1}</span>
+                                        {step}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         };
 
-        const MainContent = ({ active }) => {
-            const data = DATA[active];
-            const styles = THEME_CONFIG[active];
+        const MainContent = ({ active, view, favorites, toggleFav }) => {
+            const [search, setSearch] = useState("");
             
+            // Logique de filtrage (Recherche + Vue)
+            const allPrompts = useMemo(() => {
+                let items = [];
+                Object.entries(DATA).forEach(([catKey, cat]) => {
+                    cat.prompts.forEach(p => items.push({...p, catKey, catTitle: cat.title}));
+                });
+                return items;
+            }, []);
+
+            const displayedPrompts = useMemo(() => {
+                let list = view === 'favorites' 
+                    ? allPrompts.filter(p => favorites.includes(p.id))
+                    : DATA[active].prompts.map(p => ({...p, catKey: active}));
+
+                if (search.trim()) {
+                    const q = search.toLowerCase();
+                    // Recherche globale si input
+                    list = allPrompts.filter(p => 
+                        p.title.toLowerCase().includes(q) || 
+                        p.desc.toLowerCase().includes(q) ||
+                        p.catTitle.toLowerCase().includes(q)
+                    );
+                }
+                return list;
+            }, [search, view, active, allPrompts, favorites]);
+
+            const currentData = DATA[active];
+            const currentStyle = THEME_CONFIG[active];
+
             return (
-                <div className="flex-1 h-screen overflow-y-auto p-4 md:p-8 relative custom-scrollbar">
-                    {/* Header Image Dynamique avec Overlay Thématique */}
-                    <div className="relative h-48 md:h-64 rounded-3xl overflow-hidden mb-10 border border-white/5 shadow-2xl group">
-                        <img src={data.img} className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-[2s]" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent"></div>
-                        
-                        <div className="absolute bottom-0 left-0 p-6 md:p-8 w-full">
-                            <h2 className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tight drop-shadow-xl">{data.title}</h2>
-                            <div className="flex items-center gap-3">
-                                <span className={`h-1.5 w-12 rounded-full ${styles.progressBar}`}></span>
-                                <p className={`text-sm md:text-lg font-medium ${styles.accent}`}>Bibliothèque de Prompts Intelligents</p>
-                            </div>
+                <div className="flex-1 h-screen overflow-y-auto relative custom-scrollbar bg-slate-950/50">
+                    
+                    {/* Top Bar (Search) */}
+                    <div className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/5 p-4 flex items-center justify-between gap-4">
+                        <div className="relative flex-1 max-w-xl">
+                            <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                            <input 
+                                type="text" 
+                                placeholder="Rechercher un prompt, un tag..." 
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-slate-600 transition-colors placeholder-slate-600"
+                            />
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-slate-500 font-mono hidden sm:flex">
+                            <span><i className="fa-solid fa-database mr-1"></i>LOCAL</span>
+                            <span><i className="fa-solid fa-bolt mr-1"></i>FAST</span>
                         </div>
                     </div>
 
-                    {/* Grille de Prompts */}
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-32">
-                        {data.prompts.map(p => (
-                            <PromptCard key={p.id} item={p} themeKey={active} />
-                        ))}
-                    </div>
+                    <div className="p-4 md:p-8 max-w-7xl mx-auto">
+                        
+                        {/* Header Section (Uniquement si pas de recherche et vue Home) */}
+                        {!search && view === 'home' && (
+                            <div className="relative h-48 md:h-64 rounded-3xl overflow-hidden mb-10 border border-white/5 shadow-2xl group animate-fade">
+                                <img src={currentData.img} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-[2s]" 
+                                    onError={(e) => {e.target.onerror = null; e.target.style.display='none'; e.target.parentNode.style.background = '#1e293b'}} />
+                                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/50 to-transparent"></div>
+                                <div className="absolute bottom-0 left-0 p-6 md:p-8 w-full">
+                                    <h2 className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tight drop-shadow-xl">{currentData.title}</h2>
+                                    <div className="flex items-center gap-3">
+                                        <span className={`h-1.5 w-12 rounded-full ${currentStyle.bgAccent}`}></span>
+                                        <p className={`text-sm md:text-lg font-medium ${currentStyle.accent}`}>Bibliothèque Cognitive</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
-                    {/* Footer */}
-                    <div className="text-center text-slate-600 text-[10px] py-10 font-mono uppercase tracking-widest">
-                        Codex v7.0 • Foundation Edition • GitHub Pages Compatible
+                        {/* Résultats de Recherche / Vue Favoris */}
+                        {(search || view === 'favorites') && (
+                            <div className="mb-8 flex items-center gap-2">
+                                <span className="text-xl font-bold text-white">
+                                    {search ? `Recherche : "${search}"` : "Vos Favoris"}
+                                </span>
+                                <span className="px-2 py-0.5 rounded-full bg-slate-800 text-xs text-slate-400 border border-white/10">
+                                    {displayedPrompts.length}
+                                </span>
+                            </div>
+                        )}
+
+                        {/* Grille */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6 pb-20">
+                            {displayedPrompts.length > 0 ? (
+                                displayedPrompts.map(p => (
+                                    <PromptCard 
+                                        key={p.id} 
+                                        item={p} 
+                                        themeKey={p.catKey} 
+                                        isFav={favorites.includes(p.id)}
+                                        toggleFav={() => toggleFav(p.id)}
+                                    />
+                                ))
+                            ) : (
+                                <div className="col-span-full py-20 text-center text-slate-600">
+                                    <i className="fa-solid fa-ghost text-4xl mb-4 opacity-50"></i>
+                                    <p>Aucun prompt trouvé.</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             );
@@ -441,11 +531,21 @@
 
         const App = () => {
             const [activeTab, setActiveTab] = useState('medecine');
+            const [view, setView] = useState('home'); // 'home' | 'favorites'
+            const [favorites, setFavorites] = useLocalStorage('codex_favs', []);
+
+            const toggleFav = (id) => {
+                if (favorites.includes(id)) {
+                    setFavorites(favorites.filter(favId => favId !== id));
+                } else {
+                    setFavorites([...favorites, id]);
+                }
+            };
 
             return (
                 <div className="flex flex-col md:flex-row h-screen overflow-hidden text-slate-200">
-                    <Sidebar active={activeTab} setActive={setActiveTab} />
-                    <MainContent active={activeTab} />
+                    <Sidebar active={activeTab} setActive={setActiveTab} view={view} setView={setView} />
+                    <MainContent active={activeTab} view={view} favorites={favorites} toggleFav={toggleFav} />
                 </div>
             );
         };
