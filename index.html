@@ -3,135 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codex Gemini v5.0 - Visual Hub</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <title>CODEX GEMINI v6.0 - ULTIMA</title>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        :root { --glass-bg: rgba(15, 23, 42, 0.85); --glass-border: rgba(255, 255, 255, 0.1); }
-        body { font-family: 'Outfit', sans-serif; background-color: #000000; color: #f1f5f9; min-height: 100vh; overflow-x: hidden; }
-        .bg-animate { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background: radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.15), transparent 25%), radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.15), transparent 25%); animation: pulse 10s ease-in-out infinite alternate; }
-        @keyframes pulse { 0% { opacity: 0.5; transform: scale(1); } 100% { opacity: 1; transform: scale(1.1); } }
+        /* Configuration Avancée */
+        :root {
+            --bg-deep: #030712;
+            --glass-panel: rgba(17, 24, 39, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --neon-blue: #38bdf8;
+            --neon-rose: #f43f5e;
+            --neon-purple: #c084fc;
+        }
+        body {
+            background-color: var(--bg-deep);
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        /* Background Animé Subtil */
+        .grid-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: var(--glass-panel);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Scrollbar Invisible mais fonctionnelle */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+        
+        /* Animations */
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide { animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        
         .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .glass-card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .glass-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.3); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); }
-        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #0f172a; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <div class="bg-animate"></div>
+    <div class="grid-bg"></div>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
-        const categories = [
-            { id: 'immuno', icon: 'fa-dna', name: 'Interne & Immuno', desc: 'Expertise Clinique & Bio', color: 'from-blue-500 to-cyan-400', img: 'microscope,dna' },
-            { id: 'gourmand', icon: 'fa-user-md', name: 'Dr GOURMAND', desc: 'Simulation Hardcore', color: 'from-rose-500 to-red-400', img: 'hospital,emergency' },
-            { id: 'culture', icon: 'fa-landmark', name: 'Savoir Absolu', desc: 'Arts, Lettres, Philo', color: 'from-purple-500 to-indigo-400', img: 'library,statue' },
-            { id: 'science', icon: 'fa-atom', name: 'Cosmos & Quantum', desc: 'Physique, Maths, Chimie', color: 'from-emerald-500 to-teal-400', img: 'galaxy,quantum' },
-            { id: 'code', icon: 'fa-code', name: 'Code & Création', desc: 'Dev, Échecs, Cuisine', color: 'from-orange-500 to-amber-400', img: 'coding,chess' },
-            { id: 'engineer', icon: 'fa-microchip', name: 'Ingénierie IA', desc: 'Moteur & Paramètres', color: 'from-slate-500 to-gray-400', img: 'robot,network' }
-        ];
-        const library = {
-            immuno: [
-                { title: "Le Physiopathologiste", tags: ["Deep Dive"], img: "cell", prompt: "Explique la physiopathologie détaillée de [Maladie] au niveau moléculaire. Inclus les cytokines impliquées, les interactions récepteur-ligand et les voies de signalisation intracellulaire (JAK-STAT, NF-kB...). Fais des liens avec les cibles thérapeutiques actuelles." },
-                { title: "Veille Biblio (NotebookLM)", tags: ["Zotero"], img: "research", prompt: "(Dans NotebookLM) : Synthétise les nouvelles pistes thérapeutiques pour [Pathologie] basées sur ces 5 articles. Crée un tableau comparatif : 'Molécule', 'Mécanisme', 'Résultats Essais Phase III', 'Effets Indésirables Majeurs'." },
-                { title: "Avocat du Diable", tags: ["Diagnostic"], img: "debate", prompt: "Je pense que ce patient a [Diagnostic X]. Voici le dossier : [Données]. Ton rôle est de prouver que j'ai tort. Trouve toutes les incohérences, les atypies, et propose 3 diagnostics alternatifs plus probables ou plus graves que je pourrais avoir manqués." },
-                { title: "Annonce Difficile", tags: ["Éthique"], img: "doctor", prompt: "Incarne un patient de 40 ans, père de famille, à qui je dois annoncer une Sclérose Latérale Amyotrophique. Réagis de façon émotionnelle réaliste. Analyse ensuite ma façon de te l'annoncer et donne-moi un feedback." }
-            ],
-            gourmand: [
-                { title: "MOTEUR DE JEU (Start)", tags: ["Jeu"], img: "ecg", prompt: "Tu es le Moteur 'Dr GOURMAND'.\n1. Choisis SECRÈTEMENT une pathologie (Interne/Infectieux/Rare) et un patient.\n2. Le jeu est au tour par tour. Je demande examen/clinique, tu donnes le résultat.\n3. Gère le TEMPS : chaque examen coûte des heures.\n4. NE DONNE JAMAIS LA RÉPONSE avant que je ne trouve ou que le patient meure.\nCommence par : 'Alarme aux Urgences...'" },
-                { title: "Coup de Poker", tags: ["Action"], img: "pills", prompt: "(En jeu) : Je suspecte une cause infectieuse/inflammatoire mais je n'ai pas la preuve. Je lance un traitement d'épreuve : [Médicament]. Décris l'évolution clinique sur les 12 prochaines heures. Attention aux effets secondaires si je me trompe." },
-                { title: "Le Staff", tags: ["Aide"], img: "meeting", prompt: "(En jeu) : Je convoque un staff. Fais intervenir un Radiologue (cynique), un Infectiologue (méticuleux) et un Chirurgien (impatient). Chacun donne son avis bref sur le dossier actuel." },
-                { title: "Autopsie Cognitive", tags: ["Fin"], img: "brain", prompt: "La partie est finie. Révèle le diagnostic. Maintenant, retrace tout le fil du cas. À quel moment précis aurais-je dû évoquer ce diagnostic ? Quel signe clinique (séméiologie) était la clé ? Note ma performance sur 10." }
-            ],
-            culture: [
-                { title: "Trivial Pursuit Infini", tags: ["Quiz"], img: "history", prompt: "Génère un Quiz de Culture Générale de 10 questions. Thèmes : Histoire, Géo, Philo, Littérature, Cinéma, Sciences. Difficulté : Difficile/Expert. Format : QCM avec explications détaillées APRES la réponse." },
-                { title: "Le Dîner Fantastique", tags: ["Philo"], img: "philosophy", prompt: "Organise un dîner de discussion entre Hermann Hesse, Albert Camus et Nietzsche. Le thème : 'Le sens de la vie face à la mort'. Écris le script de leur conversation, en respectant le style de chacun." },
-                { title: "Analyste Temporel", tags: ["Géo"], img: "map", prompt: "Je veux comprendre la situation actuelle en [Région]. Remonte 100 ans en arrière. Trace une ligne du temps des 5 événements majeurs qui ont mené à la situation d'aujourd'hui." },
-                { title: "Critique d'Art IA", tags: ["Vision"], img: "painting", prompt: "[Uploader Image] Analyse cette œuvre. 1. Mouvement artistique ? 2. Technique utilisée ? 3. Analyse la composition et la lumière. 4. Quelle émotion le peintre a-t-il voulu transmettre ?" }
-            ],
-            science: [
-                { title: "Professeur Feynman", tags: ["Pédagogie"], img: "blackboard", prompt: "Agis comme Richard Feynman. Explique-moi le concept de [Sujet] en utilisant une analogie simple, puis approfondis avec les vraies équations mathématiques (en LaTeX)." },
-                { title: "Labo de Pensée", tags: ["Einstein"], img: "space", prompt: "Guidons une expérience de pensée à la Einstein. Imaginons que je chevauche un photon qui part du soleil. Décris ce que je vois, comment le temps s'écoule pour moi, et comment l'espace se déforme." },
-                { title: "Visu Moléculaire", tags: ["Python"], img: "chemistry", prompt: "Utilise Python et RDKit pour générer la structure 3D de la molécule de [Nom]. Affiche ses propriétés physico-chimiques (Poids, LogP)." },
-                { title: "Défi Mathématique", tags: ["Logique"], img: "math", prompt: "Pose-moi une énigme mathématique de niveau 'Concours Général'. Domaine : Probabilités ou Arithmétique. Laisse-moi chercher. Si je bloque, donne-moi un indice subtil." }
-            ],
-            code: [
-                { title: "Architecte Web", tags: ["HTML/JS"], img: "laptop", prompt: "Je veux créer une page web interactive pour [Projet]. Écris le code HTML, CSS (Tailwind) et JS complet dans un seul fichier. Le design doit être sombre et minimaliste." },
-                { title: "Mentor Échecs", tags: ["Vision"], img: "chess", prompt: "[Uploader capture] Analyse cette position. 1. Qui a l'avantage ? 2. Quel est le meilleur coup pour les Blancs ? 3. Explique le plan stratégique à long terme." },
-                { title: "Data Cleaner", tags: ["Python"], img: "data", prompt: "[Uploader CSV] Ce fichier contient des données patients. Écris un script Python pour : 1. Anonymiser les noms. 2. Remplacer les valeurs manquantes par la moyenne. 3. Détecter les outliers." },
-                { title: "Chef Algorithmique", tags: ["Cuisine"], img: "food", prompt: "J'ai ces ingrédients : [Liste]. Je veux un repas : 1. Hyper-protéiné. 2. Faible index glycémique. 3. Prêt en 20min. Génère la recette avec le calcul des macros." }
-            ],
-            engineer: [
-                { title: "Température Zéro", tags: ["Rigueur"], img: "ice", prompt: "Instruction Système : Adopte une 'Température de 0'. Tes réponses doivent être strictement factuelles. Si tu ne connais pas une information avec certitude, dis 'Je ne sais pas'." },
-                { title: "Chain of Thought", tags: ["Logique"], img: "gears", prompt: "Question : [Problème]. Instruction : Ne réponds pas tout de suite. Décompose ta réflexion étape par étape (Step-by-step thinking). Écris d'abord tes hypothèses, puis donne la réponse." },
-                { title: "Few-Shot Learning", tags: ["Exemple"], img: "target", prompt: "Je veux que tu classifies des symptômes. Voici 3 exemples :\n1. 'Mal au crâne' -> {Neuro}\n2. 'Sang urines' -> {Uro}\nÀ toi. Entrée : [Nouveau Symptôme]" },
-                { title: "Prompt Creator", tags: ["Meta"], img: "pen", prompt: "Agis comme un ingénieur Prompt. Je veux que l'IA fasse [Tâche]. Rédige le meilleur prompt possible pour obtenir ce résultat, en utilisant les techniques de persona et de contexte." }
-            ]
+        const { useState, useEffect, useMemo } = React;
+
+        // --- BIBLIOTHÈQUE DE DONNÉES (MEGA PROMPTS) ---
+        const DATA = {
+            medecine: {
+                title: "Médecine Interne & Immuno",
+                theme: "blue",
+                icon: "fa-user-doctor",
+                img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2070&auto=format&fit=crop",
+                prompts: [
+                    {
+                        id: "m1",
+                        title: "Le Staff Universitaire (Zotero)",
+                        desc: "Analyse croisée de littérature médicale de haut niveau.",
+                        inputs: [
+                            {key: "sujet", label: "Sujet Pathologique", placeholder: "ex: Lupus Systémique"},
+                            {key: "nb_sources", label: "Nombre d'articles", placeholder: "ex: 5"}
+                        ],
+                        template: (v) => `Agis comme un Professeur de Médecine Interne en milieu hospitalo-universitaire. J'ai chargé ${v.nb_sources || 'plusieurs'} articles récents concernant ${v.sujet || 'une pathologie'} dans NotebookLM.\n\nTACHE :\nRéalise une synthèse structurée de ces documents en te focalisant sur :\n1. Les nouvelles cibles thérapeutiques (mécanisme moléculaire précis).\n2. Les points de divergence entre les auteurs (controverses).\n3. La validité méthodologique : identifie les biais potentiels dans les cohortes citées.\n\nFORMAT DE SORTIE :\n- Tableau comparatif des études.\n- Conclusion pratique : "Ce qui change pour le clinicien en 2024".\n- Niveau de preuve (Grades HAS).`
+                    },
+                    {
+                        id: "m2",
+                        title: "Le Physiopathologiste Moléculaire",
+                        desc: "Visualisation mentale des mécanismes complexes.",
+                        inputs: [
+                            {key: "patho", label: "Maladie / Mécanisme", placeholder: "ex: Syndrome d'Activation Macrophagique"}
+                        ],
+                        template: (v) => `Explique la physiopathologie détaillée de : ${v.patho || 'la maladie'} au niveau cellulaire et moléculaire.\n\nCONSIGNES :\n1. Décris la cascade inflammatoire étape par étape (Signalisation -> Transcription -> Cytokines).\n2. Utilise des analogies visuelles fortes pour expliquer les interactions récepteurs-ligands.\n3. Fais le lien direct entre chaque étape moléculaire et le signe clinique observable au lit du patient.\n4. Liste les biothérapies (Anti-IL1, Anti-IL6, JAKi, etc.) qui ciblent spécifiquement ces étapes.`
+                    },
+                    {
+                        id: "m3",
+                        title: "L'Avocat du Diable (Diagnostic)",
+                        desc: "Lutte contre le biais de confirmation.",
+                        inputs: [
+                            {key: "diag", label: "Diagnostic suspecté", placeholder: "ex: Maladie de Horton"},
+                            {key: "signes", label: "Signes présents", placeholder: "ex: Céphalées, VS élevée"}
+                        ],
+                        template: (v) => `Je suspecte un diagnostic de ${v.diag || '...'} devant ce tableau : ${v.signes || '...'}.\n\nTON RÔLE : Tu es un "Red Team" médical. Ton but est de prouver que j'ai tort pour éviter l'erreur diagnostique.\n\nACTION :\n1. Liste 3 diagnostics différentiels (Mimics) qui pourraient parfaitement expliquer ce tableau mais qui sont plus graves ou nécessitent un traitement opposé.\n2. Pour chaque diagnostic alternatif, donne le "Key Feature" manquant que je dois aller chercher immédiatement.\n3. Calcule (estimation) la probabilité pré-test de mon diagnostic vs les autres.`
+                    }
+                ]
+            },
+            gourmand: {
+                title: "Dr GOURMAND (Le Jeu)",
+                theme: "rose",
+                icon: "fa-skull-crossbones",
+                img: "https://images.unsplash.com/photo-1516574187841-69301976e499?q=80&w=2070&auto=format&fit=crop",
+                prompts: [
+                    {
+                        id: "g1",
+                        title: "MOTEUR DE JEU v2 (Start)",
+                        desc: "Lancement de la simulation hardcore.",
+                        inputs: [
+                            {key: "specialite", label: "Domaine", placeholder: "Médecine Interne / Infectieux"},
+                            {key: "difficulte", label: "Difficulté (1-10)", placeholder: "9"}
+                        ],
+                        template: (v) => `Tu es le Moteur de Simulation Clinique "Dr GOURMAND".\n\nPARAMÈTRES :\n- Spécialité : ${v.specialite || 'Médecine Interne'}\n- Difficulté : ${v.difficulte || 'Expert'}\n\nRÈGLES ABSOLUES (System Prompt) :\n1. Choisis SECRÈTEMENT un patient et un diagnostic complexe. NE LE RÉVÈLE JAMAIS.\n2. Le jeu est au tour par tour. J'agis (examen, question, bio), tu réponds par le résultat brut.\n3. GESTION DU TEMPS : Chaque action coûte du temps virtuel. Si je suis lent ou imprécis, l'état hémodynamique du patient se dégrade.\n4. FIN : Victoire si je trouve le diagnostic et le traitement. Défaite si le patient décède.\n\nCommence maintenant par l'arrivée du patient aux urgences (constantes, motif). C'est à moi.`
+                    },
+                    {
+                        id: "g2",
+                        title: "Action : Le Coup de Poker",
+                        desc: "Tenter un traitement sans preuve formelle.",
+                        inputs: [
+                            {key: "tt", label: "Traitement testé", placeholder: "ex: Bolus Solumedrol 1g"}
+                        ],
+                        template: (v) => `(ACTION EN JEU) : Je prends un risque calculé. Je décide d'administrer : ${v.tt || 'un traitement'}.\n\nSimule les effets sur les 6 prochaines heures :\n- Si c'était le bon diagnostic : amélioration spectaculaire.\n- Si c'était infectieux/septique : aggravation brutale (choc).\n- Décris uniquement la surveillance infirmière et les constantes.`
+                    }
+                ]
+            },
+            culture: {
+                title: "Culture & Savoir Absolu",
+                theme: "purple",
+                icon: "fa-book-open-reader",
+                img: "https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=2074&auto=format&fit=crop",
+                prompts: [
+                    {
+                        id: "c1",
+                        title: "Le Dîner des Esprits",
+                        desc: "Simulation de débat philosophique.",
+                        inputs: [
+                            {key: "invites", label: "Invités", placeholder: "Camus, Nietzsche, Spinoza"},
+                            {key: "theme", label: "Sujet du débat", placeholder: "L'intelligence artificielle a-t-elle une âme ?"}
+                        ],
+                        template: (v) => `Organise une conversation (sous forme de script théâtral) entre ces personnages : ${v.invites || 'des philosophes'}.\n\nSUJET : ${v.theme || 'La vie'}.\n\nCONSIGNES :\n- Respecte scrupuleusement le style de chaque auteur (le vocabulaire, les concepts clés).\n- Ils doivent interagir, se couper la parole, être en désaccord.\n- Inclus des didascalies sur leurs expressions corporelles.\n- Termine par une synthèse qu'aurait pu écrire Hermann Hesse.`
+                    },
+                    {
+                        id: "c2",
+                        title: "Trivial Pursuit Adaptatif",
+                        desc: "Quiz infini qui apprend de votre niveau.",
+                        inputs: [
+                            {key: "themes", label: "Thèmes", placeholder: "Histoire, Géo, Art, Sciences"}
+                        ],
+                        template: (v) => `Génère un Quiz de 5 questions sur : ${v.themes || 'Culture G'}.\n\nMÉCANIQUE :\n- Commence niveau Difficile.\n- Pose une seule question à la fois.\n- Attends ma réponse.\n- Si je réponds juste : la prochaine question doit être plus dure et plus pointue.\n- Si je réponds faux : explique la réponse avec une anecdote mémorable, puis baisse légèrement la difficulté.\n- Affiche mon score ELO virtuel.`
+                    }
+                ]
+            },
+            code: {
+                title: "Code, Création & Tech",
+                theme: "orange",
+                icon: "fa-code",
+                img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
+                prompts: [
+                    {
+                        id: "dev1",
+                        title: "L'Architecte Web (One-File)",
+                        desc: "Crée des mini-apps complètes.",
+                        inputs: [
+                            {key: "app", label: "Idée d'application", placeholder: "Calculateur de clairance rénale design"}
+                        ],
+                        template: (v) => `Agis comme un développeur Fullstack Senior expert en React et Tailwind CSS.\n\nPROJET : Je veux créer une application web "Single File" (un seul fichier HTML) pour : ${v.app || 'un outil'}.\n\nEXIGENCES :\n1. Utilise React et Babel via CDN (comme dans l'exemple du Codex).\n2. Design : Sombre, moderne, "Medical Grade", responsive.\n3. Code robuste : gestion des erreurs (inputs vides).\n4. Fournis le code complet prêt à être copié-collé sans aucune explication préliminaire.`
+                    },
+                    {
+                        id: "chess",
+                        title: "Le Grand Maître (Vision)",
+                        desc: "Analyse de position d'échecs.",
+                        inputs: [],
+                        template: (v) => `(Action : Upload une capture d'écran de l'échiquier)\n\nAnalyse cette position comme un Grand Maître.\n1. Évaluation : Qui est mieux ? (+/-)\n2. Candidats : Quels sont les 3 coups candidats pour le trait ?\n3. Plan : Quel est le plan stratégique à long terme (structure de pions, cases faibles) ?\n4. Menace : Y a-t-il une tactique immédiate ?`
+                    }
+                ]
+            }
         };
 
-        function CodexV5() {
-            const [activeTab, setActiveTab] = useState('immuno');
-            const activeData = library[activeTab];
-            const activeCat = categories.find(c => c.id === activeTab);
-            const copyToClipboard = (text, e) => {
-                navigator.clipboard.writeText(text);
-                const btn = e.target;
-                const originalText = btn.innerText;
-                btn.innerText = "COPIÉ !";
-                btn.classList.add('bg-green-500', 'text-white');
-                setTimeout(() => { btn.innerText = originalText; btn.classList.remove('bg-green-500', 'text-white'); }, 2000);
+        // --- COMPOSANTS ---
+
+        const Sidebar = ({ active, setActive }) => (
+            <div className="w-full md:w-20 lg:w-72 glass flex md:flex-col border-r border-white/10 z-50 md:h-screen fixed md:relative bottom-0">
+                <div className="p-6 hidden md:flex flex-col items-center lg:items-start">
+                    <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 hidden lg:block">CODEX</h1>
+                    <span className="text-[10px] text-slate-400 tracking-widest font-mono mt-1 hidden lg:block">ULTIMA v6.0</span>
+                    <i className="fa-solid fa-cube text-3xl text-blue-500 lg:hidden"></i>
+                </div>
+                
+                <nav className="flex-1 flex md:flex-col justify-around md:justify-start gap-2 p-2 overflow-x-auto md:overflow-visible">
+                    {Object.entries(DATA).map(([key, cat]) => (
+                        <button
+                            key={key}
+                            onClick={() => setActive(key)}
+                            className={`p-3 rounded-xl flex items-center gap-4 transition-all duration-300 group
+                            ${active === key ? 'bg-white/10 text-white shadow-lg border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                        >
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-${cat.theme}-500/20 to-${cat.theme}-600/20 text-${cat.theme}-400 group-hover:scale-110 transition-transform`}>
+                                <i className={`fa-solid ${cat.icon}`}></i>
+                            </div>
+                            <span className="font-medium hidden lg:block">{cat.title}</span>
+                        </button>
+                    ))}
+                </nav>
+            </div>
+        );
+
+        const PromptCard = ({ item, theme }) => {
+            const [inputs, setInputs] = useState({});
+            const [copied, setCopied] = useState(false);
+
+            const handleInput = (key, value) => {
+                setInputs(prev => ({...prev, [key]: value}));
             };
+
+            const finalPrompt = useMemo(() => item.template(inputs), [inputs]);
+
+            const copy = () => {
+                navigator.clipboard.writeText(finalPrompt);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            };
+
             return (
-                <div className="flex flex-col md:flex-row h-screen max-w-[1600px] mx-auto overflow-hidden shadow-2xl rounded-xl border border-white/10 bg-slate-900/50 backdrop-blur-3xl m-0 md:m-4">
-                    <div className="w-full md:w-80 bg-slate-950/80 p-6 flex flex-col border-r border-white/5 overflow-y-auto z-20">
-                        <div className="mb-8 flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/20"><i className="fa-solid fa-gem text-white"></i></div>
-                            <div><h1 className="text-xl font-bold tracking-tight text-white">Codex Gemini</h1><p className="text-xs text-slate-400 font-mono">v5.0 • VISUAL EDITION</p></div>
+                <div className="glass rounded-2xl p-6 hover:border-white/20 transition-all duration-300 group animate-slide">
+                    <div className="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 className="text-xl font-bold text-white group-hover:text-blue-300 transition-colors">{item.title}</h3>
+                            <p className="text-sm text-slate-400 mt-1">{item.desc}</p>
                         </div>
-                        <div className="space-y-2">
-                            {categories.map(cat => (
-                                <button key={cat.id} onClick={() => setActiveTab(cat.id)} className={`w-full p-4 rounded-xl flex items-center gap-4 transition-all duration-300 group border ${activeTab === cat.id ? 'bg-slate-800 border-slate-600 shadow-xl' : 'bg-transparent border-transparent hover:bg-slate-900'}`}>
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br ${cat.color} text-white shadow-lg group-hover:scale-110 transition-transform`}><i className={`fa-solid ${cat.icon}`}></i></div>
-                                    <div className="text-left"><div className={`font-semibold ${activeTab === cat.id ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`}>{cat.name}</div><div className="text-[10px] text-slate-500 uppercase tracking-wider">{cat.desc}</div></div>
-                                </button>
-                            ))}
-                        </div>
+                        <span className={`text-${theme}-400 text-xs font-mono border border-${theme}-400/30 px-2 py-1 rounded bg-${theme}-400/10`}>PROMPT</span>
                     </div>
-                    <div className="flex-1 overflow-y-auto p-4 md:p-8 relative scroll-smooth">
-                        <div className="relative mb-8 rounded-2xl overflow-hidden h-48 flex items-end p-8 border border-white/10 shadow-2xl">
-                             <img src={`https://source.unsplash.com/1200x400/?${activeCat.img},abstract,dark`} alt="Header" className="absolute inset-0 w-full h-full object-cover opacity-60 hover:scale-105 transition-transform duration-700"/>
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
-                            <div className="relative z-10"><h2 className="text-4xl md:text-5xl font-bold text-white mb-2 text-shadow">{activeCat.name}</h2><p className="text-slate-300 text-lg flex items-center gap-2"><span className={`w-2 h-2 rounded-full bg-gradient-to-r ${activeCat.color}`}></span>{activeCat.desc}</p></div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6 pb-20">
-                            {activeData.map((item, idx) => (
-                                <div key={idx} className="glass-card rounded-2xl overflow-hidden flex flex-col group h-full">
-                                    <div className="h-32 overflow-hidden relative">
-                                        <div className="absolute top-2 right-2 z-10 flex gap-1">{item.tags.map(tag => (<span key={tag} className="text-[10px] font-bold uppercase bg-black/60 backdrop-blur text-white px-2 py-1 rounded border border-white/10">{tag}</span>))}</div>
-                                        <img src={`https://source.unsplash.com/600x400/?${item.img},${activeCat.img},technology`} className="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-500"/>
-                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
+
+                    {/* Zone de saisie dynamique (Variables) */}
+                    {item.inputs && item.inputs.length > 0 && (
+                        <div className="bg-black/40 rounded-lg p-3 mb-4 border border-white/5">
+                            <div className="text-[10px] uppercase text-slate-500 font-bold mb-2 tracking-wider">Variables</div>
+                            <div className="grid gap-3">
+                                {item.inputs.map((inp) => (
+                                    <div key={inp.key} className="flex flex-col">
+                                        <label className="text-xs text-slate-300 mb-1">{inp.label}</label>
+                                        <input 
+                                            type="text" 
+                                            placeholder={inp.placeholder}
+                                            onChange={(e) => handleInput(inp.key, e.target.value)}
+                                            className="bg-slate-900/80 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                                        />
                                     </div>
-                                    <div className="p-6 flex-1 flex flex-col">
-                                        <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">{item.title}</h3>
-                                        <div className="relative flex-1 bg-slate-950/50 rounded-xl border border-white/5 group-hover:border-blue-500/30 transition-colors">
-                                            <pre className="p-4 font-mono text-xs text-slate-400 whitespace-pre-wrap leading-relaxed h-32 overflow-y-auto custom-scrollbar">{item.prompt}</pre>
-                                            <button onClick={(e) => copyToClipboard(item.prompt, e)} className="absolute bottom-2 right-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold uppercase px-3 py-1.5 rounded-lg border border-white/10 transition-all shadow-lg"><i className="fa-regular fa-copy mr-1"></i> Copier</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
+                    )}
+
+                    {/* Preview du Prompt */}
+                    <div className="relative mt-4">
+                        <div className="absolute -top-3 left-3 bg-slate-800 text-[10px] text-slate-400 px-2 rounded border border-white/10">PREVIEW</div>
+                        <pre className="bg-slate-950/60 rounded-xl p-4 pt-6 text-xs text-slate-300 font-mono whitespace-pre-wrap border border-white/5 max-h-48 overflow-y-auto custom-scrollbar">
+                            {finalPrompt}
+                        </pre>
+                        <button 
+                            onClick={copy}
+                            className={`absolute bottom-3 right-3 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-lg flex items-center gap-2
+                            ${copied ? 'bg-green-500 text-white' : `bg-slate-800 hover:bg-${theme}-500 text-white border border-white/10`}`}
+                        >
+                            <i className={`fa-solid ${copied ? 'fa-check' : 'fa-copy'}`}></i>
+                            {copied ? 'Copié !' : 'Copier'}
+                        </button>
                     </div>
                 </div>
             );
-        }
+        };
+
+        const MainContent = ({ active }) => {
+            const data = DATA[active];
+            
+            return (
+                <div className="flex-1 h-screen overflow-y-auto p-4 md:p-8 relative">
+                    {/* Header Image Dynamique */}
+                    <div className="relative h-64 rounded-3xl overflow-hidden mb-10 border border-white/10 shadow-2xl group">
+                        <img src={data.img} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent"></div>
+                        <div className="absolute bottom-0 left-0 p-8">
+                            <h2 className="text-5xl font-black text-white mb-2 tracking-tight drop-shadow-lg">{data.title}</h2>
+                            <div className="flex items-center gap-3">
+                                <span className={`h-1 w-12 bg-${data.theme}-500 rounded-full`}></span>
+                                <p className="text-slate-200 text-lg font-light">Bibliothèque de Prompts Intelligents</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Grille de Prompts */}
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 pb-32">
+                        {data.prompts.map(p => (
+                            <PromptCard key={p.id} item={p} theme={data.theme} />
+                        ))}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="text-center text-slate-600 text-xs py-10 font-mono">
+                        Propulsé par Gemini 1.5 Pro • Édition Personnelle Dr Gourmand
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('medecine');
+
+            return (
+                <div className="flex flex-col md:flex-row h-screen overflow-hidden text-slate-200">
+                    <Sidebar active={activeTab} setActive={setActiveTab} />
+                    <MainContent active={activeTab} />
+                </div>
+            );
+        };
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<CodexV5 />);
+        root.render(<App />);
     </script>
 </body>
 </html>
