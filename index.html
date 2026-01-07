@@ -3,269 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CODEX ULTIMA v11 - Simulation Engine</title>
+    <title>CODEX ULTIMA v12 - Gourmand OS</title>
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Cinzel:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        :root { --bg-deep: #020617; --glass-panel: rgba(15, 23, 42, 0.95); --glass-border: rgba(255, 255, 255, 0.08); }
+        :root { --bg-deep: #050505; --glass-panel: rgba(20, 20, 23, 0.85); --glass-border: rgba(255, 255, 255, 0.08); --accent: #3b82f6; }
         body { background-color: var(--bg-deep); color: #e2e8f0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         
-        /* Grid Background & Animations */
-        .grid-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 30px 30px; mask-image: radial-gradient(circle at 50% 30%, black 30%, transparent 100%); }
-        .glass { background: var(--glass-panel); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4); }
-        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .font-mystic { font-family: 'Cinzel', serif; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        /* Advanced Background */
+        .grid-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; 
+            background: radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.08), transparent 25%), radial-gradient(circle at 85% 30%, rgba(244, 63, 94, 0.08), transparent 25%);
+            background-color: #020617; }
+        .grid-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; 
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); 
+            background-size: 40px 40px; mask-image: radial-gradient(circle at center, black 40%, transparent 100%); }
+            
+        .glass { background: var(--glass-panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); }
+        .glass-card { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
+        .glass-card:hover { background: rgba(30, 41, 59, 0.6); border-color: rgba(255,255,255,0.1); transform: translateY(-2px); }
         
-        /* Hourglass Animation */
-        .rotate-cw { transform: rotate(180deg); transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        .rotate-ccw { transform: rotate(0deg); transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        .golden-glow { color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .font-display { font-family: 'Space Grotesk', sans-serif; }
+        .font-mystic { font-family: 'Cinzel', serif; }
+        
+        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.1); } 50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); } }
+        .animate-glow { animation: pulse-glow 3s infinite; }
+        .animate-fade { animation: fadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Dice Animation */
+        .dice-spin { animation: spin 0.6s ease-out; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div class="grid-bg"></div>
+    <div class="grid-bg"></div><div class="grid-overlay"></div>
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        /* --- 1. CONFIGURATION ROBUSTE (Anti-Crash) --- */
-        const DEFAULT_THEME = { accent: "text-slate-400", bgAccent: "bg-slate-500", borderAccent: "border-slate-500", badge: "bg-slate-800", button: "bg-slate-800", gradientIcon: "from-slate-800 to-slate-900" };
-
-        const THEME_CONFIG = {
-            medecine: { accent: "text-sky-400", bgAccent: "bg-sky-500", borderAccent: "border-sky-500", badge: "bg-sky-950 text-sky-300 border-sky-800", button: "bg-slate-800 hover:bg-sky-600 text-white border-white/10", gradientIcon: "from-sky-900 to-blue-900 text-sky-300" },
-            gourmand: { accent: "text-rose-400", bgAccent: "bg-rose-500", borderAccent: "border-rose-500", badge: "bg-rose-950 text-rose-300 border-rose-800", button: "bg-slate-800 hover:bg-rose-600 text-white border-white/10", gradientIcon: "from-rose-900 to-red-900 text-rose-300" },
-            cosmos: { accent: "text-indigo-400", bgAccent: "bg-indigo-500", borderAccent: "border-indigo-500", badge: "bg-indigo-950 text-indigo-300 border-indigo-800", button: "bg-slate-800 hover:bg-indigo-600 text-white border-white/10", gradientIcon: "from-indigo-900 to-violet-900 text-indigo-300" },
-            humanities: { accent: "text-fuchsia-400", bgAccent: "bg-fuchsia-500", borderAccent: "border-fuchsia-500", badge: "bg-fuchsia-950 text-fuchsia-300 border-fuchsia-800", button: "bg-slate-800 hover:bg-fuchsia-600 text-white border-white/10", gradientIcon: "from-fuchsia-900 to-pink-900 text-fuchsia-300" },
-            strategy: { accent: "text-emerald-400", bgAccent: "bg-emerald-500", borderAccent: "border-emerald-500", badge: "bg-emerald-950 text-emerald-300 border-emerald-800", button: "bg-slate-800 hover:bg-emerald-600 text-white border-white/10", gradientIcon: "from-emerald-900 to-teal-900 text-emerald-300" },
-            time: { accent: "text-amber-400", bgAccent: "bg-amber-500", borderAccent: "border-amber-500", badge: "bg-amber-950 text-amber-300 border-amber-800", button: "bg-slate-900 hover:bg-amber-600 text-amber-100 border-amber-500/30", gradientIcon: "from-amber-900 to-yellow-900 text-amber-300" }
+        /* --- 1. CONFIGURATION DESIGN SYSTEM --- */
+        const THEMES = {
+            medecine: { id: 'medecine', color: 'sky', icon: 'fa-user-doctor', gradient: 'from-sky-500 to-blue-600' },
+            gourmand: { id: 'gourmand', color: 'rose', icon: 'fa-heart-pulse', gradient: 'from-rose-500 to-red-600' },
+            psy: { id: 'psy', color: 'teal', icon: 'fa-brain', gradient: 'from-teal-500 to-emerald-600' }, // NEW
+            cosmos: { id: 'cosmos', color: 'indigo', icon: 'fa-atom', gradient: 'from-indigo-500 to-violet-600' },
+            humanities: { id: 'humanities', color: 'fuchsia', icon: 'fa-book-open', gradient: 'from-fuchsia-500 to-pink-600' },
+            art: { id: 'art', color: 'pink', icon: 'fa-palette', gradient: 'from-pink-500 to-rose-500' }, // NEW
+            strategy: { id: 'strategy', color: 'emerald', icon: 'fa-chess', gradient: 'from-emerald-500 to-green-600' },
+            prod: { id: 'prod', color: 'slate', icon: 'fa-list-check', gradient: 'from-slate-500 to-gray-600' }, // NEW
+            time: { id: 'time', color: 'amber', icon: 'fa-hourglass-half', gradient: 'from-amber-500 to-yellow-600' }
         };
 
-        const AI_TOOLS = {
-            gemini: { label: "Gemini Pro", icon: "fa-gem", color: "text-blue-300" },
-            notebook: { label: "NotebookLM", icon: "fa-book-journal-whills", color: "text-emerald-300" },
-            mistral: { label: "Mistral", icon: "fa-wind", color: "text-indigo-300" },
-            python: { label: "Python", icon: "fa-python", color: "text-yellow-300" },
-            img: { label: "Imagen", icon: "fa-image", color: "text-pink-300" },
-            audio: { label: "Audio", icon: "fa-headphones", color: "text-orange-300" } 
+        const AI_TAGS = {
+            gemini: { label: "Gemini 1.5", icon: "fa-gem", color: "text-blue-400" },
+            notebook: { label: "NotebookLM", icon: "fa-book", color: "text-emerald-400" },
+            mistral: { label: "Mistral", icon: "fa-wind", color: "text-indigo-400" },
+            img: { label: "DALL-E/MidJ", icon: "fa-image", color: "text-pink-400" },
+            python: { label: "Python", icon: "fa-python", color: "text-yellow-400" }
         };
 
         /* --- 2. ENGINE UTILS --- */
-        // Générateur de hasard pour la variabilité
-        const randomPick = (options) => options[Math.floor(Math.random() * options.length)];
-        
-        // Injecteur intelligent
-        const val = (inputs, key, fallbackArr) => {
-            const value = inputs[key];
-            if (value && value.trim() !== "") return value;
-            // Si pas d'input, on pioche une valeur aléatoire si fallbackArr est un tableau
-            if (Array.isArray(fallbackArr)) return `[ALÉATOIRE: ${randomPick(fallbackArr)}]`;
-            return `[${fallbackArr}]`;
-        };
+        const randomPick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        const val = (inputs, key, fallback) => inputs[key] && inputs[key].trim() !== "" ? inputs[key] : `[${fallback}]`;
 
-        /* --- 3. DATA LAYER (SCÉNARIOS COMPLETS) --- */
+        /* --- 3. DATA LAYER (EXPANDED) --- */
         const DATA = {
-            medecine: {
-                title: "Médecine Interne",
-                icon: "fa-user-doctor",
-                img: "https://images.unsplash.com/photo-1579684385136-137af18db23c?auto=format&fit=crop&w=2000&q=80",
-                prompts: [
-                    {
-                        id: "m1", title: "Synthèse EBM", itemIcon: "fa-scale-balanced",
-                        desc: "Transformez une pile de PDF en état de l'art clinique structuré.",
-                        type: "notebook", aiTags: ["notebook"],
-                        workflow: {
-                            goal: "Créer un document de référence inattaquable.",
-                            steps: ["Zotero : Export PDF", "NotebookLM : Upload", "Prompt", "Vérification des citations"],
-                            result: "Tableau comparatif + Zones d'ombre."
-                        },
-                        inputs: [{key: "sujet", label: "Pathologie", placeholder: "Vascularites"}],
-                        templates: { standard: (v) => `RÔLE: Expert Méthodologiste.\nSOURCE: Documents chargés.\nTÂCHE: Synthèse EBM sur ${val(v,'sujet','SUJET')}.\n\nSTRUCTURE:\n1. Tableau comparatif (n=, design, résultats).\n2. Consensus vs Controverses (Crucial).\n3. Implications cliniques.\n4. Citer les sources [x].` }
-                    },
-                    {
-                        id: "m2", title: "Red Team Diagnostic", itemIcon: "fa-chess",
-                        desc: "Luttez contre votre biais de confirmation.",
-                        aiTags: ["gemini"],
-                        workflow: { goal: "Sécuriser un diagnostic incertain.", steps: ["Poser le diagnostic", "Laisser l'IA attaquer", "Chercher le 'Killer Test'"], result: "Liste de diagnostics différentiels critiques." },
-                        inputs: [{key: "hyp", label: "Hypothèse", placeholder: "Horton"}, {key: "sig", label: "Signes", placeholder: "Céphalées..."}],
-                        templates: { standard: (v) => `RÔLE: Red Team (Avocat du Diable).\nMON HYPOTHÈSE: ${val(v,'hyp','DIAG')}.\nCLINIQUE: ${val(v,'sig',['Céphalées atypiques', 'Fièvre nue', 'AEG isolé', 'Douleur thoracique'])}.\n\nMISSION:\n1. Trouve 3 arguments CONTRE ce diagnostic.\n2. Liste 3 'Mimics' graves.\n3. Quel est le 'Killer Test' ?` }
-                    }
-                ]
-            },
+            // --- CŒUR DU SYSTÈME ---
             gourmand: {
-                title: "Dr GOURMAND",
-                icon: "fa-utensils",
+                title: "Dr GOURMAND OS",
+                subtitle: "Simulateur Clinique Avancé",
                 img: "./dr-gourmand.png", // Image locale
                 prompts: [
                     {
-                        id: "g1", title: "Moteur de Simulation v2", itemIcon: "fa-heart-pulse",
-                        desc: "Simulation clinique interactive avec gestion du temps.",
-                        aiTags: ["gemini"],
-                        workflow: { goal: "Entraînement à la décision sous pression.", steps: ["Copier le System Prompt", "Ne rien dire d'autre", "Jouer le tour par tour"], result: "Score de survie patient." },
-                        inputs: [{key: "spe", label: "Spécialité", placeholder: "Infectio"}, {key: "lvl", label: "Niveau (1-10)", placeholder: "9"}],
-                        templates: { standard: (v) => `SYSTEM PROMPT:\nTu es 'Dr GOURMAND', moteur de simulation.\nPARAM: ${val(v,'spe',['Infectiologie', 'Médecine Interne', 'Réanimation', 'Cardiologie'])}, Niv ${val(v,'lvl','9')}.\n\nRÈGLES:\n1. Choisis SECRÈTEMENT un cas complexe (Hidden State).\n2. Tour par tour. Tu donnes les résultats bruts.\n3. Gère le TEMPS (Avance l'horloge à chaque examen).\n4. Si je traîne -> Décès.\n\nINITIALISATION: Affiche l'arrivée du patient (Visuel, Constantes).` }
+                        id: "g_sim", title: "Simulation Clinique v3", desc: "Moteur de simulation avec gestion d'état et aléa.",
+                        workflow: ["System Prompt", "Jeu tour par tour", "Debrief final"], aiTags: ["gemini"],
+                        inputs: [{key: "spe", label: "Spécialité", placeholder: "Urgence"}, {key: "lvl", label: "Difficulté", placeholder: "10"}],
+                        modifiers: ["Patient VIP hystérique", "Panne informatique totale", "Famille menaçante", "Patient muet", "Pénurie de médicaments", "Nuit de pleine lune"],
+                        template: (v, mod) => `SYSTEM PROMPT:\nTu es le moteur 'Dr GOURMAND'.\nPARAM: Spécialité ${val(v,'spe','Aléatoire')}, Niv ${val(v,'lvl','Extrême')}.\nCONTRAINTE ALÉATOIRE: ${mod || 'Aucune'}.\n\nMÉCANIQUE:\n1. Hidden State: Choisis un diagnostic complexe. Ne révèle RIEN.\n2. Réalisme: Donne des résultats bruts. Si je demande une radio, décris l'image, ne donne pas le compte-rendu.\n3. Temps: Chaque action coûte des minutes. Si je traîne -> Décès.\n\nINITIALISATION: Affiche l'heure, le motif d'admission et l'état initial.`
+                    },
+                    {
+                        id: "g_drug", title: "Thérapie de Choc", desc: "Test thérapeutique risqué en situation critique.",
+                        workflow: ["Action désespérée", "Observation", "Conséquences"], aiTags: ["gemini"],
+                        inputs: [{key: "drug", label: "Molécule", placeholder: "Adrénaline 5mg"}],
+                        modifiers: ["Erreur de dosage infirmière", "Rupture de stock", "Réaction allergique immédiate", "Voie veineuse perdue"],
+                        template: (v, mod) => `ACTION JEU: J'administre ${val(v,'drug','Traitement')} en urgence.\nÉVÉNEMENT IMPRÉVU: ${mod || 'Aucun'}.\n\nSIMULATION: Avance le temps de 15min. Décris l'évolution des constantes (scope) et la conscience. Si mon diagnostic était faux, décris les complications.`
                     }
                 ]
             },
+            // --- MÉDECINE ---
+            medecine: {
+                title: "Médecine Interne",
+                subtitle: "Evidence-Based & Raisonnement",
+                img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=2000&q=80",
+                prompts: [
+                    {
+                        id: "m_ebm", title: "Synthèse EBM (NotebookLM)", desc: "Transformer la biblio en tableau clinique.",
+                        workflow: ["Zotero -> PDF", "NotebookLM", "Prompt"], aiTags: ["notebook"],
+                        inputs: [{key: "topic", label: "Sujet", placeholder: "Lupus"}],
+                        modifiers: ["Focus Contradictions", "Focus Nouveautés 2024", "Focus Effets Secondaires", "Focus Coût/Efficacité"],
+                        template: (v, mod) => `RÔLE: Expert Méthodologiste.\nANGLE D'ANALYSE: ${mod || 'Général'}.\nSUJET: ${val(v,'topic','Sujet')}.\n\nOUTPUT:\n1. Tableau des études (n=, biais).\n2. Consensus vs Divergences.\n3. 'Tomorrow's Practice' : Impact concret.`
+                    },
+                    {
+                        id: "m_red", title: "Red Team Diagnostic", desc: "Lutte contre le biais d'ancrage.",
+                        workflow: ["Hypothèse", "Attaque", "Défense"], aiTags: ["gemini", "mistral"],
+                        inputs: [{key: "hyp", label: "Mon Diagnostic", placeholder: "Horton"}],
+                        modifiers: ["Biais de rareté (Zèbre)", "Présentation Atypique", "Patient non-compliant", "Antécédents trompeurs"],
+                        template: (v, mod) => `RÔLE: Avocat du Diable.\nCONTEXTE: ${mod}.\nMON DIAGNOSTIC: ${val(v,'hyp','Hypothèse')}.\n\nTACHE: Prouve que j'ai tort.\n1. Cite 3 diagnostics différentiels qui tuent.\n2. Quel signe clinique manque-t-il ?\n3. Probabilité pré-test révisée.`
+                    }
+                ]
+            },
+            // --- PSYCHOLOGIE (NEW) ---
+            psy: {
+                title: "Psychologie & Biais",
+                subtitle: "Analyse Comportementale",
+                img: "https://images.unsplash.com/photo-1555353540-64580b51c258?auto=format&fit=crop&w=2000&q=80",
+                prompts: [
+                    {
+                        id: "psy_cbt", title: "Simulateur TCC", desc: "Entraînement à la Thérapie Cognitive.",
+                        workflow: ["Patient simulé", "Restructuration", "Feedback"], aiTags: ["gemini"],
+                        inputs: [{key: "phobia", label: "Phobie", placeholder: "Avion"}],
+                        modifiers: ["Patient résistant", "Patient en pleurs", "Patient agressif", "Déni total"],
+                        template: (v, mod) => `Joue le rôle d'un patient souffrant de ${val(v,'phobia','Phobie')}.\nATTITUDE: ${mod}.\n\nJe suis le thérapeute. Je vais tenter une restructuration cognitive. Réagis de façon réaliste à mes arguments. Ne cède pas facilement.`
+                    },
+                    {
+                        id: "psy_bias", title: "Détecteur de Biais", desc: "Analyse de texte pour trouver les failles logiques.",
+                        workflow: ["Coller texte", "Analyse", "Correction"], aiTags: ["gemini"],
+                        inputs: [],
+                        modifiers: ["Focus Biais de confirmation", "Focus Biais d'autorité", "Focus Sophismes", "Focus Émotionnel"],
+                        template: (v, mod) => `Analyse le texte ci-dessous.\nLENTILLE D'ANALYSE: ${mod}.\n\nIdentifie chaque biais cognitif, sophisme ou manipulation logique. Propose une reformulation neutre.`
+                    }
+                ]
+            },
+            // --- COSMOS ---
             cosmos: {
-                title: "Cosmos & Quantique",
-                icon: "fa-atom",
-                img: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=2000&q=80",
+                title: "Cosmos & Science",
+                subtitle: "Comprendre l'Univers",
+                img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=2000&q=80",
                 prompts: [
                     {
-                        id: "cos1", title: "Le Debunker Quantique", itemIcon: "fa-radiation",
-                        desc: "Distinguer la physique du mysticisme.",
-                        aiTags: ["gemini"],
-                        workflow: { goal: "Clarifier un concept mal compris.", steps: ["Identifier l'affirmation", "Déconstruire mathématiquement", "Reconstruire l'intuition"], result: "Explication claire." },
-                        inputs: [{key: "concept", label: "Affirmation", placeholder: "Conscience quantique"}],
-                        templates: { standard: (v) => `Agis comme un Physicien Théoricien.\nAnalyse : "${val(v,'concept',['Loi de l\'attraction', 'Mémoire de l\'eau', 'Biocentrisme'])}".\n\nTÂCHE :\n1. Déconstruis l'erreur d'interprétation.\n2. Explique le vrai phénomène physique.\n3. Analogie macroscopique brutale.` }
+                        id: "c_quant", title: "Intuition Quantique", desc: "Visualiser l'invisible.",
+                        workflow: ["Concept", "Analogie", "Limites"], aiTags: ["gemini"],
+                        inputs: [{key: "concept", label: "Concept", placeholder: "Superposition"}],
+                        modifiers: ["Analogie Musicale", "Analogie Sociale", "Analogie Mécanique", "Analogie Financière"],
+                        template: (v, mod) => `Explique le concept : ${val(v,'concept','Quantique')}.\nSTYLE PÉDAGOGIQUE: Utilise une ${mod}.\n\nNe donne pas d'équations. Fais-moi 'sentir' le concept intuitivement.`
+                    },
+                    {
+                        id: "c_exo", title: "Exobiologiste", desc: "Création de vie alien plausible.",
+                        workflow: ["Paramètres", "Évolution", "Rendu Visuel"], aiTags: ["gemini", "img"],
+                        inputs: [{key: "star", label: "Étoile", placeholder: "Naine Rouge"}],
+                        modifiers: ["Gravité 3G", "Planète Océan", "Atmosphère Toxique", "Pas de lumière"],
+                        template: (v, mod) => `Crée une forme de vie intelligente évoluant autour d'une ${val(v,'star','Étoile')}.\nCONTRAINTE ENVIRONNEMENTALE: ${mod}.\n\nDécris :\n1. Morphologie (adaptée à la contrainte).\n2. Mode de communication.\n3. Prompt pour générer l'image.`
                     }
                 ]
             },
+            // --- ARTS VISUELS (NEW) ---
+            art: {
+                title: "Atelier Créatif",
+                subtitle: "Génération Visuelle & Critique",
+                img: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=2000&q=80",
+                prompts: [
+                    {
+                        id: "a_mid", title: "Le Directeur Artistique", desc: "Créer le prompt parfait pour Midjourney/Dall-E.",
+                        workflow: ["Idée floue", "Transformation", "Génération"], aiTags: ["gemini", "img"],
+                        inputs: [{key: "sujet", label: "Sujet", placeholder: "Médecin futuriste"}],
+                        modifiers: ["Style Cyberpunk", "Style Renaissance", "Style Bauhaus", "Style Ghibli", "Style Photoréaliste 8k", "Style Gravure"],
+                        template: (v, mod) => `Agis comme un expert en Prompt Engineering pour Midjourney v6.\nSUJET: ${val(v,'sujet','Image')}.\nSTYLE IMPOSÉ: ${mod}.\n\nÉcris 3 variantes de prompts optimisés (en anglais) incluant les paramètres techniques (--ar, --v, --stylize) pour obtenir une image primée.`
+                    }
+                ]
+            },
+            // --- STRATÉGIE ---
             strategy: {
-                title: "Stratégie & Maîtrise",
-                icon: "fa-chess-knight",
-                img: "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=2000&q=80",
+                title: "Stratégie & Code",
+                subtitle: "Modèles Mentaux & Tech",
+                img: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=2000&q=80",
                 prompts: [
                     {
-                        id: "strat1", title: "Ouverture Sensei", itemIcon: "fa-chess-board",
-                        desc: "Apprendre les concepts d'échecs, pas le par cœur.",
-                        aiTags: ["gemini"],
-                        workflow: { goal: "Maîtriser une ouverture.", steps: ["Choisir l'ouverture", "Comprendre les plans", "Voir les pièges"], result: "Compréhension stratégique." },
+                        id: "s_chess", title: "Ouverture Sensei", desc: "Comprendre les plans aux échecs.",
+                        workflow: ["Ouverture", "Idées clés", "Pièges"], aiTags: ["gemini"],
                         inputs: [{key: "open", label: "Ouverture", placeholder: "Sicilienne"}],
-                        templates: { standard: (v) => `Enseigne-moi l'ouverture ${val(v,'open',['Défense Sicilienne', 'Gambit Dame', 'Est-Indienne'])}.\nFocus sur les IDÉES stratégiques :\n1. Pièce clé ?\n2. Plan long terme ?\n3. Piège classique ?` }
+                        modifiers: ["Focus Attaque", "Focus Défense solide", "Focus Positonnel", "Focus Pièges tactiques"],
+                        template: (v, mod) => `Enseigne-moi l'ouverture ${val(v,'open','Échecs')}.\nORIENTATON: ${mod}.\n\nNe recite pas les coups. Explique les IDÉES et les PLANS.`
                     }
                 ]
             },
-            humanities: {
-                title: "Humanités & Arts",
-                icon: "fa-masks-theater",
-                img: "https://images.unsplash.com/photo-1551043047-1d2adf00f3e1?auto=format&fit=crop&w=2000&q=80",
-                prompts: [
-                    {
-                        id: "hum1", title: "Miroir du Poète", itemIcon: "fa-feather",
-                        desc: "Transfert de style littéraire.",
-                        aiTags: ["mistral"],
-                        workflow: { goal: "Pastiche littéraire.", steps: ["Choisir l'auteur", "Choisir un sujet anachronique", "Générer"], result: "Poème stylisé." },
-                        inputs: [{key: "aut", label: "Auteur", placeholder: "Baudelaire"}, {key: "suj", label: "Sujet", placeholder: "Internet"}],
-                        templates: { standard: (v) => `Style : ${val(v,'aut',['Baudelaire', 'Hugo', 'Rimbaud'])}.\nSujet : ${val(v,'suj',['Le Smartphone', 'L\'IA', 'Le Métro'])}.\n\nÉcris un poème en respectant scrupuleusement le rythme et le lexique.` }
-                    }
-                ]
-            },
+             // --- TIME (SECRET) ---
             time: {
                 title: "LE TEMPS",
-                icon: "fa-hourglass-half",
+                subtitle: "Dimension Cachée",
                 img: "https://images.unsplash.com/photo-1501139083538-0139583c61dd?auto=format&fit=crop&w=2000&q=80",
                 isSecret: true,
                 prompts: [
                     {
-                        id: "time1", title: "Entropie & Flèche", itemIcon: "fa-arrow-trend-up",
-                        desc: "L'irréversibilité thermodynamique.",
-                        aiTags: ["gemini"],
-                        workflow: { goal: "Comprendre la mort thermique.", steps: ["Questionner l'ordre", "Questionner le désordre"], result: "Vertige existentiel." },
-                        inputs: [],
-                        templates: { standard: () => `Explique le lien entre Entropie et Flèche du Temps.\nPourquoi le verre brisé ne remonte-t-il jamais ?` }
+                        id: "t_entropy", title: "Entropie", desc: "La flèche du temps.", aiTags: ["gemini"],
+                        inputs: [], modifiers: ["Vue Thermodynamique", "Vue Philosophique"],
+                        template: (v, mod) => `Explique l'irréversibilité du temps.\nANGLE: ${mod || 'Physique'}.`
                     }
                 ]
             }
         };
 
-        /* --- 4. COMPOSANTS --- */
-        
-        // Modal Charte Cognitive
-        const CharterModal = ({ onClose }) => (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade" onClick={onClose}>
-                <div className="bg-slate-900 border border-white/10 rounded-2xl p-8 max-w-2xl w-full shadow-2xl relative" onClick={e => e.stopPropagation()}>
-                    <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-white"><i className="fa-solid fa-xmark text-xl"></i></button>
-                    <h2 className="text-2xl font-mystic text-amber-400 mb-6 text-center border-b border-white/5 pb-4">Charte Cognitive</h2>
-                    <div className="space-y-4 text-slate-300 font-light leading-relaxed">
-                        <p><strong className="text-white">1. L'IA est un Miroir.</strong> Ce que vous y mettez (clarté, intention) est ce que vous recevez. Le Codex est un outil pour polir votre propre pensée.</p>
-                        <p><strong className="text-white">2. Simulation > Information.</strong> Ne demandez pas une réponse. Demandez une expérience, un débat, une simulation. C'est dans l'interaction que naît l'apprentissage.</p>
-                        <p><strong className="text-white">3. Le Temps est la Ressource.</strong> Dans Dr GOURMAND comme dans la vie, ne pas décider est une décision. Le temps ne s'arrête pas.</p>
-                    </div>
-                </div>
-            </div>
+        /* --- 4. COMPONENTS --- */
+
+        const DiceButton = ({ onClick, spinning }) => (
+            <button onClick={(e) => { e.stopPropagation(); onClick(); }} 
+                className={`w-8 h-8 rounded-lg flex items-center justify-center bg-slate-800 hover:bg-white text-slate-400 hover:text-slate-900 border border-white/10 transition-all shadow-lg ${spinning ? 'dice-spin text-white bg-slate-700' : ''}`}
+                title="Injecter une contrainte aléatoire">
+                <i className="fa-solid fa-dice-d20"></i>
+            </button>
         );
 
-        const Sidebar = ({ active, setActive, mysteryState, triggerMystery, setCharter }) => (
+        const Sidebar = ({ active, setActive, setView, mystery, triggerMystery }) => (
             <div className="w-full md:w-20 lg:w-72 glass flex md:flex-col border-r border-white/10 z-50 md:h-screen fixed md:relative bottom-0">
-                <div className="p-6 hidden md:flex flex-col items-center lg:items-start">
+                <div className="p-6 hidden md:flex flex-col items-center lg:items-start cursor-pointer" onClick={() => setView('dashboard')}>
                     <div className="flex items-center gap-3">
-                        <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-100 to-slate-400 tracking-tight">CODEX</h1>
-                        <button onClick={triggerMystery} className={`text-slate-600 hover:text-amber-400 transition-all duration-700 ${mysteryState === 1 ? 'rotate-cw text-amber-500' : ''} ${mysteryState === 2 ? 'rotate-ccw text-amber-400 golden-glow' : ''}`}>
-                            <i className="fa-solid fa-hourglass-start text-lg"></i>
-                        </button>
+                        <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 tracking-tight font-display">CODEX</h1>
+                        <button onClick={triggerMystery} className={`transition-all duration-700 ${mystery===2 ? 'text-amber-400 rotate-180' : 'text-slate-700 hover:text-slate-400'}`}><i className="fa-solid fa-hourglass-start"></i></button>
                     </div>
-                    <div className="flex items-center gap-2 mt-1"><span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-white/5 font-mono">v11.0</span></div>
+                    <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-white/5 font-mono">v12.0</span>
+                        <span className="text-[10px] text-blue-500 font-mono tracking-wider">OS</span>
+                    </div>
                 </div>
-                <nav className="flex-1 flex md:flex-col gap-1 p-2 overflow-x-auto md:overflow-visible no-scrollbar">
+                
+                <nav className="flex-1 flex md:flex-col gap-1 p-3 overflow-x-auto md:overflow-visible no-scrollbar">
+                    {/* Dashboard Button */}
+                    <button onClick={() => setView('dashboard')} className={`p-3 rounded-xl flex items-center gap-4 transition-all duration-300 group mb-4 border ${active === 'dashboard' ? 'bg-slate-800 border-white/10 text-white shadow-xl' : 'border-transparent text-slate-500 hover:text-slate-200'}`}>
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-900 shadow-inner"><i className="fa-solid fa-gauge-high"></i></div>
+                        <span className="font-bold hidden lg:block text-sm">Tableau de Bord</span>
+                    </button>
+
+                    <div className="text-[10px] uppercase text-slate-600 font-bold px-4 py-2 hidden lg:block tracking-widest">Modules</div>
+                    
                     {Object.entries(DATA).map(([key, cat]) => {
-                        if (cat.isSecret && mysteryState < 2) return null;
-                        const styles = THEME_CONFIG[key] || DEFAULT_THEME; // Fallback
+                        if (cat.isSecret && mystery < 2) return null;
+                        const theme = THEMES[key] || THEMES.medecine;
                         return (
-                            <button key={key} onClick={() => setActive(key)} className={`p-3 rounded-xl flex items-center gap-4 transition-all duration-300 group ${active === key ? 'bg-white/5 text-white' : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'}`}>
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br ${styles.gradientIcon} shadow-lg group-hover:scale-110 transition-transform`}><i className={`fa-solid ${cat.icon}`}></i></div>
-                                <span className={`font-medium hidden lg:block text-sm ${key === 'time' ? 'font-mystic text-amber-400' : ''}`}>{cat.title}</span>
+                            <button key={key} onClick={() => { setActive(key); setView('module'); }}
+                                className={`p-3 rounded-xl flex items-center gap-4 transition-all duration-300 group relative overflow-hidden ${active === key && window.view !== 'dashboard' ? 'bg-white/5 text-white' : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'}`}>
+                                {active === key && <div className={`absolute left-0 top-1 bottom-1 w-1 rounded-r bg-${theme.color}-500`}></div>}
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br ${theme.gradient} shadow-lg group-hover:scale-110 transition-transform text-white text-xs`}>
+                                    <i className={`fa-solid ${theme.icon}`}></i>
+                                </div>
+                                <span className="font-medium hidden lg:block text-sm">{cat.title}</span>
                             </button>
                         );
                     })}
-                    <div className="mt-auto hidden md:block px-4 pb-4">
-                        <button onClick={() => setCharter(true)} className="flex items-center gap-3 text-xs text-slate-500 hover:text-amber-400 transition-colors"><i className="fa-solid fa-scroll"></i> Charte Cognitive</button>
-                    </div>
                 </nav>
             </div>
         );
 
         const PromptCard = ({ item, themeKey }) => {
             const [inputs, setInputs] = useState({});
+            const [modifier, setModifier] = useState(null);
+            const [spinning, setSpinning] = useState(false);
             const [copied, setCopied] = useState(false);
-            const [tab, setTab] = useState('prompt'); // 'prompt' | 'workflow'
-            const styles = THEME_CONFIG[themeKey] || DEFAULT_THEME;
-            const finalPrompt = useMemo(() => item.templates.standard(inputs), [inputs, item]);
+            const [tab, setTab] = useState('prompt');
+            
+            const theme = THEMES[themeKey] || THEMES.medecine;
+            
+            const rollDice = () => {
+                setSpinning(true);
+                setTimeout(() => {
+                    setModifier(randomPick(item.modifiers));
+                    setSpinning(false);
+                }, 500);
+            };
 
+            const finalPrompt = useMemo(() => item.template(inputs, modifier), [inputs, modifier, item]);
             const copy = () => { navigator.clipboard.writeText(finalPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); };
 
             return (
-                <div className="glass rounded-2xl border border-white/5 hover:border-white/20 transition-all duration-300 flex flex-col h-full overflow-hidden animate-fade">
-                    <div className="p-5 border-b border-white/5 bg-white/[0.02]">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-slate-900 border border-white/5 text-lg ${styles.accent}`}><i className={`fa-solid ${item.itemIcon}`}></i></div>
-                            <div><h3 className="text-lg font-bold text-slate-100">{item.title}</h3><div className="flex gap-2 text-[10px] text-slate-500">{item.aiTags.map(t => <span key={t}><i className={`fa-solid ${AI_TOOLS[t].icon} mr-1`}></i>{AI_TOOLS[t].label}</span>)}</div></div>
+                <div className="glass-card rounded-2xl flex flex-col h-full overflow-hidden animate-fade">
+                    {/* Header */}
+                    <div className="p-5 border-b border-white/5 bg-slate-900/50 flex justify-between items-start">
+                        <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br ${theme.gradient} text-white text-lg shadow-lg`}>
+                                <i className={`fa-solid ${item.icon || theme.icon}`}></i>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-100 leading-tight">{item.title}</h3>
+                                <div className="flex gap-2 mt-1">{item.aiTags.map(t => <span key={t} className="text-[10px] bg-slate-950 px-1.5 py-0.5 rounded text-slate-400 border border-white/5 flex items-center gap-1"><i className={`fa-solid ${AI_TAGS[t].icon} ${AI_TAGS[t].color}`}></i> {AI_TAGS[t].label}</span>)}</div>
+                            </div>
                         </div>
-                        <p className="text-xs text-slate-400 line-clamp-2">{item.desc}</p>
+                        <DiceButton onClick={rollDice} spinning={spinning} />
                     </div>
 
-                    <div className="flex border-b border-white/5 text-[10px] font-bold uppercase tracking-wider">
-                        <button onClick={() => setTab('prompt')} className={`flex-1 py-3 transition-colors ${tab === 'prompt' ? 'text-white bg-white/5 border-b-2 '+styles.borderAccent : 'text-slate-500 hover:text-slate-300'}`}>Prompt</button>
-                        <button onClick={() => setTab('workflow')} className={`flex-1 py-3 transition-colors ${tab === 'workflow' ? 'text-white bg-white/5 border-b-2 '+styles.borderAccent : 'text-slate-500 hover:text-slate-300'}`}>Workflow</button>
+                    {/* Tabs */}
+                    <div className="flex border-b border-white/5 text-[10px] font-bold uppercase tracking-wider bg-slate-900/30">
+                        <button onClick={() => setTab('prompt')} className={`flex-1 py-3 hover:bg-white/5 transition-colors ${tab==='prompt' ? 'text-white border-b-2 border-'+theme.color+'-500' : 'text-slate-500'}`}>Prompt</button>
+                        <button onClick={() => setTab('workflow')} className={`flex-1 py-3 hover:bg-white/5 transition-colors ${tab==='workflow' ? 'text-white border-b-2 border-'+theme.color+'-500' : 'text-slate-500'}`}>Workflow</button>
                     </div>
 
-                    <div className="flex-1 bg-slate-950/30 p-5">
+                    {/* Body */}
+                    <div className="flex-1 p-5 bg-slate-950/30">
                         {tab === 'prompt' ? (
                             <>
-                                {item.inputs && <div className="space-y-3 mb-4">{item.inputs.map(inp => (
-                                    <div key={inp.key}><label className="text-[10px] uppercase text-slate-500 font-bold ml-1">{inp.label}</label><input type="text" placeholder={inp.placeholder} onChange={(e) => setInputs({...inputs, [inp.key]: e.target.value})} className="w-full mt-1 bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-slate-500 font-mono transition-colors"/></div>
-                                ))}</div>}
-                                <div className="relative h-full min-h-[150px]">
-                                    <pre className="bg-slate-950 rounded-xl p-4 text-xs text-slate-400 font-mono whitespace-pre-wrap border border-white/5 h-full overflow-y-auto custom-scrollbar">{finalPrompt}</pre>
-                                    <button onClick={copy} className={`absolute bottom-3 right-3 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all shadow-lg flex items-center gap-2 ${copied ? 'bg-emerald-600 text-white' : styles.button}`}><i className={`fa-solid ${copied ? 'fa-check' : 'fa-copy'}`}></i>{copied ? 'Copié' : 'Copier'}</button>
+                                {modifier && <div className="mb-4 p-2 bg-gradient-to-r from-slate-900 to-slate-800 border border-white/10 rounded-lg flex items-center gap-2 animate-fade"><i className="fa-solid fa-dice-d20 text-yellow-400 animate-pulse"></i> <span className="text-xs text-slate-200"><span className="opacity-50 uppercase font-bold text-[10px] mr-1">Contrainte:</span> {modifier}</span></div>}
+                                
+                                <div className="space-y-3 mb-4">
+                                    {item.inputs.map(inp => (
+                                        <div key={inp.key}>
+                                            <label className="text-[10px] uppercase text-slate-500 font-bold ml-1">{inp.label}</label>
+                                            <input type="text" placeholder={inp.placeholder} onChange={e => setInputs({...inputs, [inp.key]: e.target.value})} className="w-full mt-1 bg-slate-900/80 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-blue-500 font-mono transition-all outline-none focus:ring-1 focus:ring-blue-500/50"/>
+                                        </div>
+                                    ))}
+                                </div>
+                                
+                                <div className="relative h-full min-h-[120px]">
+                                    <pre className="bg-slate-950 rounded-xl p-4 text-xs text-slate-400 font-mono whitespace-pre-wrap border border-white/5 h-full overflow-y-auto custom-scrollbar shadow-inner">{finalPrompt}</pre>
+                                    <button onClick={copy} className={`absolute bottom-3 right-3 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all shadow-lg flex items-center gap-2 ${copied ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-white hover:text-slate-900 border border-white/10'}`}><i className={`fa-solid ${copied ? 'fa-check' : 'fa-copy'}`}></i>{copied ? 'Copié' : 'Copier'}</button>
                                 </div>
                             </>
                         ) : (
                             <div className="space-y-4 text-xs animate-fade">
-                                <div className="p-3 bg-slate-900/50 rounded-lg border border-white/5"><div className="font-bold text-slate-400 uppercase mb-1">Objectif</div><div className="text-white">{item.workflow.goal}</div></div>
-                                <div className="p-3 bg-slate-900/50 rounded-lg border border-white/5"><div className="font-bold text-slate-400 uppercase mb-1">Étapes</div><ol className="list-decimal list-inside space-y-1 text-slate-300">{item.workflow.steps.map((s,i)=><li key={i}>{s}</li>)}</ol></div>
-                                <div className="p-3 bg-slate-900/50 rounded-lg border border-white/5"><div className="font-bold text-slate-400 uppercase mb-1">Résultat</div><div className="text-emerald-400">{item.workflow.result}</div></div>
+                                <div className="p-3 bg-slate-900/50 rounded-lg border border-white/5"><div className="font-bold text-slate-500 uppercase mb-1">Objectif</div><div className="text-white">{item.workflow[0] || "Non défini"}</div></div>
+                                <div className="p-3 bg-slate-900/50 rounded-lg border border-white/5"><div className="font-bold text-slate-500 uppercase mb-1">Étapes</div><ol className="list-decimal list-inside space-y-1 text-slate-300">{item.workflow.map((s,i)=><li key={i}>{s}</li>)}</ol></div>
                             </div>
                         )}
                     </div>
@@ -273,28 +335,74 @@
             );
         };
 
-        const MainContent = ({ active }) => {
-            const data = DATA[active];
-            const styles = THEME_CONFIG[active] || DEFAULT_THEME;
-            
-            // Fallback Image Handler
-            const handleImgError = (e) => {
-                e.target.style.display = 'none'; // Cache l'image cassée
-                e.target.parentElement.classList.add(styles.bgAccent); // Met un fond de couleur à la place
-                e.target.parentElement.classList.add('opacity-20');
-            };
-
+        const Dashboard = ({ setView, setActive }) => {
             return (
-                <div className="flex-1 h-screen overflow-y-auto relative custom-scrollbar bg-slate-950/30">
-                    <div className="p-4 md:p-10 max-w-[1600px] mx-auto">
-                        <div className="relative h-48 md:h-64 rounded-[2rem] overflow-hidden mb-8 border border-white/5 shadow-2xl group animate-fade bg-slate-900">
-                            <img src={data.img} onError={handleImgError} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-[3s]" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent"></div>
-                            <div className="absolute bottom-0 left-0 p-8 w-full">
-                                <h2 className={`text-4xl md:text-5xl font-black text-white mb-2 tracking-tighter drop-shadow-xl ${active === 'time' ? 'font-mystic text-amber-100' : ''}`}>{data.title}</h2>
-                                <div className="flex items-center gap-3"><span className={`h-1.5 w-12 rounded-full ${styles.bgAccent}`}></span><p className={`text-sm font-medium ${styles.accent} uppercase tracking-widest`}>Simulateur Cognitif</p></div>
+                <div className="p-8 max-w-6xl mx-auto animate-fade">
+                    {/* Header */}
+                    <div className="mb-12 text-center">
+                        <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter mb-4 drop-shadow-2xl font-display">
+                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 via-white to-sky-400">GOURMAND</span> <span className="text-slate-800">OS</span>
+                        </h1>
+                        <p className="text-lg text-slate-400 font-light max-w-2xl mx-auto">
+                            Système d'Exploitation Cognitif pour la Simulation Médicale & l'Extension Mentale.
+                        </p>
+                    </div>
+
+                    {/* Stats Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+                        <div className="glass p-6 rounded-2xl flex items-center gap-4 border-l-4 border-rose-500">
+                            <div className="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 text-xl"><i className="fa-solid fa-heart-pulse"></i></div>
+                            <div><div className="text-2xl font-bold text-white">Prêt</div><div className="text-xs text-slate-400 uppercase tracking-wider">Simulateur</div></div>
+                        </div>
+                        <div className="glass p-6 rounded-2xl flex items-center gap-4 border-l-4 border-sky-500">
+                            <div className="w-12 h-12 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-400 text-xl"><i className="fa-solid fa-brain"></i></div>
+                            <div><div className="text-2xl font-bold text-white">42</div><div className="text-xs text-slate-400 uppercase tracking-wider">Prompts Actifs</div></div>
+                        </div>
+                        <div className="glass p-6 rounded-2xl flex items-center gap-4 border-l-4 border-emerald-500">
+                            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl"><i className="fa-solid fa-server"></i></div>
+                            <div><div className="text-2xl font-bold text-white">v12.0</div><div className="text-xs text-slate-400 uppercase tracking-wider">Système</div></div>
+                        </div>
+                    </div>
+
+                    {/* Main Action */}
+                    <div className="glass p-1 rounded-3xl mb-12 transform hover:scale-[1.01] transition-all duration-500 shadow-2xl">
+                        <div className="bg-slate-900/80 rounded-[22px] overflow-hidden relative group cursor-pointer" onClick={() => { setActive('gourmand'); setView('module'); }}>
+                            <div className="absolute inset-0 bg-gradient-to-r from-rose-900/50 to-purple-900/50 opacity-50 group-hover:opacity-70 transition-opacity"></div>
+                            <img src="./dr-gourmand.png" onError={(e) => e.target.style.display='none'} className="absolute right-0 top-0 h-full w-1/2 object-cover mask-image-linear-gradient opacity-60 group-hover:scale-105 transition-transform duration-1000" />
+                            <div className="relative p-10 md:p-16">
+                                <span className="inline-block px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-bold uppercase tracking-widest mb-4 border border-rose-500/30">Module Central</span>
+                                <h2 className="text-4xl md:text-5xl font-black text-white mb-4">LANCER LA GARDE</h2>
+                                <p className="text-slate-300 max-w-lg text-lg mb-8">Démarrez le moteur de simulation clinique Dr GOURMAND. Gestion du chaos, patients instables et décisions critiques.</p>
+                                <button className="px-8 py-4 bg-white text-slate-900 rounded-xl font-bold uppercase tracking-wider hover:bg-rose-400 hover:text-white transition-all flex items-center gap-3 shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                                    <i className="fa-solid fa-play"></i> Initialiser
+                                </button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const MainContent = ({ active, view, setView, setActive }) => {
+            const data = DATA[active] || DATA.medecine;
+            const theme = THEMES[active] || THEMES.medecine;
+
+            if (view === 'dashboard') return <Dashboard setView={setView} setActive={setActive} />;
+
+            return (
+                <div className="flex-1 h-screen overflow-y-auto relative custom-scrollbar">
+                    <div className="p-4 md:p-10 max-w-[1600px] mx-auto">
+                        {/* Header Image */}
+                        <div className="relative h-48 md:h-64 rounded-3xl overflow-hidden mb-8 border border-white/5 shadow-2xl group animate-fade bg-slate-900">
+                            <img src={data.img} onError={(e) => {e.target.style.display='none';}} className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-[3s]" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent"></div>
+                            <div className="absolute bottom-0 left-0 p-8 w-full">
+                                <h2 className="text-4xl md:text-5xl font-black text-white mb-2 tracking-tighter drop-shadow-xl font-display">{data.title}</h2>
+                                <div className="flex items-center gap-3"><span className={`h-1.5 w-12 rounded-full bg-${theme.color}-500`}></span><p className={`text-sm font-medium text-${theme.color}-400 uppercase tracking-widest`}>{data.subtitle}</p></div>
+                            </div>
+                        </div>
+
+                        {/* Grid */}
                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-20">
                             {data.prompts.map(p => <PromptCard key={p.id} item={p} themeKey={active} />)}
                         </div>
@@ -304,20 +412,19 @@
         };
 
         const App = () => {
-            const [active, setActive] = useState('medecine');
-            const [mystery, setMystery] = useState(0); 
-            const [charter, setCharter] = useState(false);
+            const [active, setActive] = useState('gourmand');
+            const [view, setView] = useState('dashboard');
+            const [mystery, setMystery] = useState(0);
 
             const triggerMystery = () => {
                 if (mystery === 0) setMystery(1);
-                else if (mystery === 1) { setMystery(2); setTimeout(() => setActive('time'), 600); }
+                else if (mystery === 1) { setMystery(2); setTimeout(() => { setActive('time'); setView('module'); }, 600); }
             };
 
             return (
                 <div className="flex flex-col md:flex-row h-screen overflow-hidden text-slate-200">
-                    <Sidebar active={active} setActive={setActive} mysteryState={mystery} triggerMystery={triggerMystery} setCharter={setCharter} />
-                    <MainContent active={active} />
-                    {charter && <CharterModal onClose={() => setCharter(false)} />}
+                    <Sidebar active={active} setActive={setActive} setView={setView} mystery={mystery} triggerMystery={triggerMystery} />
+                    <MainContent active={active} view={view} setView={setView} setActive={setActive} />
                 </div>
             );
         };
