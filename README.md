@@ -1,21 +1,25 @@
 # 🧬 CODEX ULTIMA
 
-> *L'interface de raisonnement augmentée pour la médecine interne, la culture et le code.*
+> *The augmented reasoning interface for internal medicine, culture, and code.*
 
-Le **Codex Ultima** est une "Single Page Application" (SPA) hébergée sur GitHub Pages.
-Elle sert de bibliothèque de prompts avancés et de méthodologie pour interagir avec les LLM (Gemini 1.5 Pro, NotebookLM, Mistral).
+**Codex Ultima** is a Single Page Application (SPA) hosted on GitHub Pages.
+It serves as a library of advanced prompts and a methodology for interacting with LLMs (Gemini 1.5 Pro, NotebookLM, Mistral).
 
-## 🔗 Accès au Codex
-👉 **[Lancer le Codex Ultima](https://boucton.github.io/codex-final/)**
+## 🔗 Access the Codex
+👉 **[Launch Codex Ultima (https://boucton.github.io/codex-final/)]**
 
-## 🛠️ Stack Technique
-- **Moteur :** React 18 (via CDN)
-- **Styling :** Tailwind CSS (Architecture statique via Theme Config)
-- **Icônes :** FontAwesome 6
-- **Hébergement :** GitHub Pages (Mode "No-Build")
+## 🛠️ Tech Stack
+- **Core:** React 18 (via CDN)
+- **Styling:** Tailwind CSS (Static architecture via Theme Config)
+- **Icons:** FontAwesome 6
+- **Hosting:** GitHub Pages ("No-Build" Mode)
 
-## 🚀 Fonctionnalités Clés (v7.0)
-- **Zéro-Dynamic Tailwind :** Architecture CSS robuste.
-- **AI Targeting :** Badges pour identifier l'IA cible (Gemini, NotebookLM, Python).
-- **Workflow Pédagogique :** Guides étape par étape intégrés aux cartes.
-- **Dr GOURMAND :** Module de simulation clinique (Moteur v2).
+## 🚀 Key Features (v7.0)
+- **Zero-Dynamic Tailwind:** Robust CSS architecture.
+- **AI Targeting:** Badges to identify the target AI (Gemini, NotebookLM, Python).
+- **Pedagogical Workflow:** Step-by-step guides integrated into the cards.
+- **Dr GOURMAND:** Clinical simulation module (Engine v2).
+
+---
+*Personal project developed by Dr GOURMAND with the assistance of Gemini.*
+(Edit : 07.01.2026)
